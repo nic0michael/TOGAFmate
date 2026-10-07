@@ -1,5 +1,3 @@
-# TOGAFmaate
-
 # TOGAFmate
 
 **TOGAFmate** is an open-source architecture repository and workflow platform designed to help organisations create, manage, govern, and evolve their enterprise architecture using the **TOGAF Architecture Development Method (ADM)**.
