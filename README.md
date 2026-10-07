@@ -56,7 +56,7 @@ Initial artefact capabilities will include:
 
 * Upload existing artefacts
 * Create new artefacts
-* Store metadata
+* Store artefact metadata
 * Categorise artefacts
 * Associate artefacts with TOGAF ADM phases
 * Maintain artefact versions
@@ -99,6 +99,8 @@ The workflow will be designed so that organisations can evolve it as their gover
 
 TOGAFmate will use **Git** internally for version control rather than attempting to reinvent version-management functionality.
 
+Git will be the **source of truth for the architecture artefact files and their version history**.
+
 Git will provide the underlying mechanism for:
 
 * Version history
@@ -110,6 +112,39 @@ Git will provide the underlying mechanism for:
 * Traceability of changes
 
 TOGAFmate will provide the architecture-specific repository and workflow capabilities around Git.
+
+### Git and Application Metadata
+
+TOGAFmate will separate **architecture artefact content** from **application metadata and workflow information**.
+
+Git will store the actual architecture artefacts, for example:
+
+```text
+architecture/
+    customer-data-architecture.md
+    customer-data-model.drawio
+    application-landscape.drawio
+    technology-architecture.md
+```
+
+The TOGAFmate application may maintain metadata about these artefacts, such as:
+
+* Artefact name
+* Artefact type
+* TOGAF ADM phase
+* Description
+* Owner
+* Author
+* Tags
+* Workflow status
+* Reviewers
+* Relationships to other artefacts
+* Git repository and path
+* Current Git version
+
+The application metadata does **not duplicate the architecture artefact files**.
+
+This separation allows TOGAFmate to use Git for what Git does well — source control and version management — while TOGAFmate provides the architecture repository, workflow, governance, and discovery capabilities required by enterprise architects.
 
 ### Sample Architecture Artefacts
 
@@ -157,7 +192,11 @@ Future versions may introduce more advanced semantic and AI-assisted discovery.
 
 ## Architecture
 
-TOGAFmate will use a modern microservice-based architecture.
+TOGAFmate will use a modern application architecture consisting of an Angular frontend and a Java/Quarkus backend.
+
+Git will be used as the underlying repository for architecture artefacts and their version history.
+
+Application metadata and workflow information may be maintained separately from the artefact content where required.
 
 ```mermaid
 flowchart LR
@@ -167,15 +206,18 @@ flowchart LR
 
     A --> Q[Quarkus REST API]
 
-    Q --> R[TOGAF Repository]
-    Q --> W[Workflow Engine]
+    Q --> M[Repository Metadata<br/>and Workflow]
+
     Q --> G[Git Repository]
 
-    R --> D[(Database)]
-    G --> F[Architecture Artefacts]
+    G --> F[Architecture Artefacts<br/>and Version History]
+
+    M -. references .-> G
 ```
 
-### Technology Stack
+The architecture deliberately avoids implementing its own version-control mechanism. **Git provides the underlying version-control capabilities, while TOGAFmate provides the TOGAF-specific repository and workflow layer.**
+
+## Technology Stack
 
 | Component        | Technology                      |
 | ---------------- | ------------------------------- |
@@ -203,7 +245,7 @@ TOGAFmate will follow several development principles:
 * Continuous code-quality analysis
 * Git-based version control
 * Containerised deployment
-* Clear separation between architecture data and application implementation
+* Clear separation between architecture artefacts, application metadata, and application implementation
 * Prefer existing proven technologies over reinventing functionality
 * Keep the platform extensible
 
@@ -257,9 +299,8 @@ TOGAFmate is licensed under the **GNU General Public License v3.0**.
 
 See the `LICENSE` file for details.
 
-
-
 ## Software License GPL3
+
 This open-source project is licensed under the **GNU General Public License version 3 (GPLv3)**.
 
 * **Private/Internal Use:** You may use and modify the software for personal or internal organisational use without publishing your changes.
@@ -267,6 +308,6 @@ This open-source project is licensed under the **GNU General Public License vers
 * **Upstream:** Where practical, improvements and fixes can be contributed back to the original project, helping to benefit the wider open-source community.
 * **Commercial Use:** GPLv3 permits commercial use and distribution, provided the GPLv3 requirements are followed.
 
-For the complete terms, see the **[GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.htm)**. \
-And [gcc.gnu.org](https://gcc.gnu.org/onlinedocs/libstdc%2B%2B/manual/appendix_gpl.html) "Appendix D. GNU General Public License version 3"
+For the complete terms, see the [GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.htm).
 
+See also [GNU libstdc++ GPLv3 information](https://gcc.gnu.org/onlinedocs/libstdc%2B%2B/manual/appendix_gpl.html).
