@@ -12,7 +12,7 @@ TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
 TOGAFmate aims to provide:
 
-- A central application for managing multiple Architecture and TOGAF Knowledge Bases.
+- A central application for managing multiple **Architecture and TOGAF Knowledge Bases**.
 - A consistent structure for all Knowledge Bases.
 - A web-based interface for browsing and reading documents.
 - ZIP-based Knowledge Base uploads.
