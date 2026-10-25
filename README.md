@@ -209,6 +209,7 @@ The configured storage root is controlled by the server and cannot be overridden
 ---
 
 ## 5. Technology Stack
+TOGAFmate will use a Docker-based containerised deployment architecture.
 
 | Component | Technology |
 |---|---|
