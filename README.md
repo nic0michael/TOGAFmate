@@ -81,6 +81,7 @@ The application will not require users to download an entire Knowledge Base to r
 
 Administrators will upload each Knowledge Base as a single ZIP file.
 
+
 The backend will:
 
 1. Receive the uploaded ZIP file.
