@@ -637,15 +637,29 @@ The Knowledge Base filesystem and PostgreSQL data will use separate persistent s
 
 ### 9.4 Replacing a Knowledge Base
 
-When an administrator replaces a Knowledge Base, the application must validate the replacement before making it available.
+TOGAFmate must allow an administrator to replace an existing Knowledge Base with a new version of the same Knowledge Base.
 
-The application must prevent users from accessing an incomplete replacement.
+The following rules apply:
 
-The implementation must also define how failed imports are rolled back and how previous versions are retained or removed.
+- The **title may remain the same** when a new version is uploaded.
+- The **version must be different** from the version being replaced.
+- The new version must be validated before it replaces the existing version.
+- The application must not activate an incomplete or invalid upload.
+- If validation or activation fails, the existing Knowledge Base must remain available and unchanged.
+- The application must prevent accidental replacement of the wrong Knowledge Base.
 
-Replacement operations must consider both PostgreSQL metadata and filesystem content. The application must not leave metadata pointing to missing files or leave obsolete content that is incorrectly registered as active.
+**Example:**
 
-The exact replacement and retention policy will be decided during detailed design.
+| Existing Knowledge Base | Uploaded Knowledge Base | Result |
+|---|---|---|
+| TOGAF Architecture Guide, version 1.0 | TOGAF Architecture Guide, version 1.1 | Allowed |
+| TOGAF Architecture Guide, version 1.0 | TOGAF Architecture Guide, version 2.0 | Allowed |
+| TOGAF Architecture Guide, version 1.0 | TOGAF Architecture Guide, version 1.0 | Rejected as a replacement because the version is unchanged |
+| TOGAF Architecture Guide, version 1.0 | Azure Architecture Guide, version 1.0 | Treated as a different Knowledge Base, not a replacement |
+
+The replacement operation must identify the existing Knowledge Base and verify that the uploaded version differs from its current version.
+
+The implementation must also define whether previous versions are retained or removed after a successful replacement. This policy will be decided during detailed design.
 
 ### 9.5 Removing a Knowledge Base
 
