@@ -257,23 +257,94 @@ The initial implementation will be designed to run locally using Docker and will
 
 TOGAFmate uses Docker containerisation for application deployment. Knowledge Base files are stored in persistent storage on the VM server and accessed by the application through a Docker volume or a mounted host directory.
 
-The preferred option is a named Docker volume when administrators do not require direct host access to individual files. A mounted host directory is an alternative when direct filesystem access is needed.
+A named Docker volume is the preferred option when administrators do not require direct access to individual files on the VM server.
 
-### 6.1 Knowledge Base Storage
+### 6.1 Knowledge Base Metadata Fields
 
-- **Docker containerisation:** The application components run in Docker containers on the VM server.
-- **Persistent Knowledge Base storage:** Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server.
-- **Preferred storage option:** Use a named Docker volume unless administrators need direct host access to the Knowledge Base files.
-- **Data persistence:** Knowledge Base files must survive container restarts, upgrades, replacement, and recreation.
-- **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, permissions, and optional audit records. Actual Knowledge Base documents and supporting resources are stored on the filesystem.
-- **Separate storage:** PostgreSQL data and Knowledge Base files use separate persistent storage locations.
-- **Storage configuration:** The deployment administrator configures the storage locations. Uploaded archives cannot override these locations.
-- **Access control:** Filesystem permissions and backend authorisation must prevent unauthorised access to Knowledge Base content.
-- **Container lifecycle:** Application containers must not be treated as the permanent storage location for Knowledge Base files or PostgreSQL data.
+When an administrator uploads a Knowledge Base ZIP file, the application captures the following metadata.
 
-### 6.2 Knowledge Base Content Structure
+| Field | Required / Optional | Description |
+|---|---|---|
+| `title` | Required | The title of the Knowledge Base. |
+| `folder_name_version` | Required | The unique folder identifier derived from the Knowledge Base title and version. |
+| `version` | Required | The version number of the Knowledge Base. |
+| `author` | Optional | The author of the Knowledge Base. |
+| `email_address` | Optional | The author's email address. |
+| `Table_Of_Contents` | Optional | The Table of Contents content or resource reference, if provided. |
 
-Each Knowledge Base is stored in its own directory on the persistent filesystem. The directory name is derived from the Knowledge Base title and version.
+The application must validate all required fields before registering and activating a Knowledge Base.
+
+Optional fields may be left blank. Their absence must not prevent an otherwise valid Knowledge Base from being uploaded.
+
+The `folder_name_version` field identifies the Knowledge Base directory within the configured storage location. It must conform to the application's naming rules and must not contain an arbitrary filesystem path.
+
+### 6.2 Knowledge Base README.md
+
+Each Knowledge Base ZIP file must contain a `README.md` file describing the Knowledge Base.
+
+The README must use a consistent structure so that TOGAFmate can validate and register the Knowledge Base metadata.
+
+The following fields must be represented in the README.
+
+| README field | Required / Optional |
+|---|---|
+| Title | Required |
+| Folder Name and Version (`folder_name_version`) | Required |
+| Version | Required |
+| Author | Optional |
+| Email Address | Optional |
+| Table of Contents (`Table_Of_Contents`) | Optional |
+
+#### 6.2.1 README Field Definitions
+
+- **Title — Required:** The display title of the Knowledge Base.
+- **Folder Name and Version — Required:** The identifier used for the Knowledge Base directory on persistent storage.
+- **Version — Required:** The version number of the Knowledge Base.
+- **Author — Optional:** The name of the person or organisation responsible for the content.
+- **Email Address — Optional:** The author's contact email address.
+- **Table of Contents — Optional:** A Table of Contents supplied with the Knowledge Base. If omitted, TOGAFmate may provide navigation using registered document metadata.
+
+The README field names and their interpretation must be consistent across all Knowledge Bases.
+
+#### 6.2.2 Example README.md
+
+The following example shows all six fields, including the optional fields.
+
+```markdown
+# TOGAF Architecture Guide v1.0
+
+## Title
+
+TOGAF Architecture Guide
+
+## Folder Name and Version
+
+TOGAF_Architecture_Guide_v1.0
+
+## Version
+
+1.0
+
+## Author (Optional)
+
+Architecture Documentation Team
+
+## Email Address (Optional)
+
+architecture@example.com
+
+## Table_Of_Contents (Optional)
+
+TABLE_OF_CONTENTS.md
+```
+
+The example email address is illustrative and must be replaced with a valid address if an author email is supplied.
+
+If the author, email address, or Table of Contents is not available, its field may be omitted or left blank according to the agreed README validation rules.
+
+### 6.3 Knowledge Base Content Structure
+
+Each Knowledge Base is stored in its own directory on the persistent filesystem. The directory name is derived from `folder_name_version`.
 
 Example:
 
@@ -291,37 +362,50 @@ KnowledgeBaseStorage/
 
 The `KnowledgeBaseStorage` directory is illustrative. In deployment, it maps to a named Docker volume or a mounted host directory on the VM server.
 
-The actual filesystem path is configured by the deployment administrator and is not determined by the uploaded archive.
+The actual filesystem path is configured by the deployment administrator. The uploaded ZIP archive cannot override the configured storage root.
 
-### 6.3 Upload and Storage Process
+### 6.4 ZIP Upload and Registration Process
 
-1. An administrator uploads a Knowledge Base as a ZIP archive.
-2. The backend validates the archive, including file paths, file types, archive size, file count, and total extracted size.
-3. The backend extracts the archive into a temporary directory.
-4. The backend validates the extracted content and checks for unsafe resource paths.
-5. The backend activates the validated content in the configured persistent storage location on the VM server.
-6. The backend registers or updates the Knowledge Base metadata in PostgreSQL.
-7. The application accesses the extracted files through authorised backend APIs.
+When an administrator uploads a Knowledge Base ZIP file, the backend will:
 
-Knowledge Base content is extracted during upload. Subsequent requests read the stored files rather than extracting the archive again.
+1. Receive the ZIP file through the Angular frontend.
+2. Validate the archive, including its file paths, file types, archive size, file count, and total extracted size.
+3. Extract the archive into a temporary directory.
+4. Locate and validate the `README.md` file.
+5. Read and validate the required metadata fields: `title`, `folder_name_version`, and `version`.
+6. Read the optional metadata fields: `author`, `email_address`, and `Table_Of_Contents`, when supplied.
+7. Validate the extracted document structure and supporting resource paths.
+8. Confirm that the Knowledge Base folder identifier conforms to the application's naming rules.
+9. Activate the validated content in the configured persistent storage location.
+10. Register the Knowledge Base metadata, document metadata, and permissions in PostgreSQL.
+11. Make the Knowledge Base available to authorised users.
 
-The import process must not expose partially uploaded or invalid Knowledge Bases. If an import fails, temporary files must be cleaned up and the existing active Knowledge Base must remain usable.
+The backend must not activate an invalid or incomplete Knowledge Base.
 
-### 6.4 Persistence, Backup and Recovery
+If an import fails, temporary files must be cleaned up and the existing active Knowledge Base must remain usable.
 
-- Knowledge Base files must not be stored only in a container's writable layer.
-- Recreating or upgrading an application container must not delete Knowledge Base content.
-- PostgreSQL data must also use persistent storage, configured separately from the Knowledge Base files.
+### 6.5 Persistent Storage
+
+- **Docker containerisation:** The application components run in Docker containers on the VM server.
+- **Persistent Knowledge Base storage:** Extracted Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server.
+- **Preferred option:** Use a named Docker volume when direct host access to files is not required.
+- **Alternative option:** Use a mounted host directory when administrators need direct access to the stored files.
+- **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, permissions, and optional audit records.
+- **Separate storage:** PostgreSQL data and Knowledge Base files must use separate persistent storage locations.
+- **Data persistence:** Knowledge Base files and database data must survive container restarts, upgrades, replacement, and recreation.
+- **Storage configuration:** The deployment administrator configures the storage locations. Uploaded archives cannot override these locations.
+
+The application must not store Knowledge Base documents only in a container's writable layer.
+
+### 6.6 Backup and Recovery
+
 - Backups must cover both PostgreSQL data and the persistent Knowledge Base filesystem.
-- Backup and recovery procedures must account for consistency between database metadata and stored files.
-- Persistent storage alone does not protect against disk failure, accidental deletion, or loss of the VM.
-- Backups must be stored in a suitable separate location, preferably one that does not depend solely on the same VM or disk.
-- The configured storage locations and backup destinations must be protected against unauthorised access.
-- Recovery procedures must restore the database and the corresponding Knowledge Base files to a mutually consistent state.
+- Backup and recovery procedures must maintain consistency between database metadata and stored files.
+- Backups must be stored in a suitable separate location so that loss of the VM or its disk does not destroy both the live data and its backups.
+- Recovery procedures must restore PostgreSQL and the corresponding Knowledge Base files to a mutually consistent state.
+- Replacement and deletion operations must avoid leaving database metadata pointing to missing files or leaving obsolete files incorrectly registered as active.
 
-**Backup consistency principle:** PostgreSQL metadata and the filesystem content must be backed up and restored in a coordinated manner. A database backup referring to files that are missing, or filesystem content with no corresponding database metadata, can leave the application in an inconsistent state.
-
-The detailed backup schedule, retention periods, and recovery procedures will be defined during deployment design.
+Backup schedules, retention periods, and detailed recovery procedures will be defined during deployment design.
 
 ---
 
