@@ -4,7 +4,7 @@
 
 The application supports multiple Knowledge Bases, each containing Markdown documents and associated resources such as images. Knowledge Bases can contain learning material, technical documentation, reference information, and other authorised content.
 
-TOGAFmate uses Angular for the frontend, Java with Quarkus for the backend, PostgreSQL for metadata and access control, and the server filesystem for document storage.
+TOGAFmate uses Angular for the frontend, Java with Quarkus for the backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. The application uses a Docker-based deployment architecture on a VM server.
 
 TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
@@ -16,12 +16,12 @@ TOGAFmate aims to provide:
 - A consistent structure for all Knowledge Bases.
 - A web-based interface for browsing and reading documents.
 - ZIP-based Knowledge Base uploads.
-- Filesystem storage for Markdown documents and supporting resources.
+- Persistent filesystem storage for Markdown documents and supporting resources.
 - PostgreSQL storage for metadata and access permissions.
 - Version identification for each Knowledge Base.
 - Access control for readers and administrators.
 - A secure mechanism for uploading, replacing, and removing Knowledge Bases.
-- A containerised deployment model.
+- A Docker-based deployment model.
 - An open-source platform that can be extended by the community.
 
 ## 2. Initial Features
@@ -86,7 +86,7 @@ The backend will:
 1. Receive the uploaded ZIP file.
 2. Validate the archive and its contents.
 3. Verify the required Knowledge Base structure.
-4. Extract the files into the configured server filesystem.
+4. Extract the files into the configured persistent filesystem storage.
 5. Register the Knowledge Base and its documents in PostgreSQL.
 6. Make the Knowledge Base available to authorised users.
 
@@ -104,6 +104,8 @@ Administrators will be able to:
 - View the registered documents and their metadata.
 
 The application must validate changes before activating a new or replacement Knowledge Base.
+
+Replacement and removal operations must avoid leaving database metadata and filesystem content inconsistent.
 
 ### 2.6 Search and Discovery
 
@@ -153,46 +155,58 @@ TOGAFmate must not assume that content is free to copy, modify, or redistribute 
 
 ## 4. Application Architecture
 
-TOGAFmate will use a **Docker-based deployment architecture**. The application components will run in separate containers, with persistent storage for Knowledge Base documents.
+TOGAFmate will use a **Docker-based deployment architecture** on a VM server. The application components will run in separate containers, with persistent storage for Knowledge Base documents and PostgreSQL data.
 
 ### 4.1 Architecture Components
 
 - **Angular Frontend:** Provides the user interface for browsing, uploading, and managing Knowledge Bases.
 - **Quarkus Backend:** Exposes REST APIs, implements business logic, validates ZIP uploads, manages access control, and serves Knowledge Base content.
 - **PostgreSQL Database:** Stores Knowledge Base metadata, document metadata, permissions, and optional audit records.
-- **Knowledge Base Filesystem:** Stores extracted Markdown documents, images, supporting resources, `README.md`, and `TABLE_OF_CONTENTS`.
+- **Knowledge Base Filesystem:** Stores extracted Markdown documents, images, supporting resources, `README.md`, and `TABLE_OF_CONTENTS.md`.
 - **Docker:** Provides containerisation for the application components and supports consistent deployment.
-- **Persistent Docker Volume:** Stores Knowledge Base files so that they remain available when containers are restarted or replaced.
+- **Persistent Knowledge Base Storage:** Stores extracted Knowledge Base files independently of the backend container lifecycle. The preferred implementation is a named Docker volume. A mounted host directory on the VM server is an alternative when direct host access to files is required.
+- **Persistent PostgreSQL Storage:** Stores PostgreSQL database files independently of the database container lifecycle. It uses a separate named Docker volume or an appropriately configured persistent host directory.
+- **VM Server:** Hosts the Docker deployment and provides the underlying disk storage for persistent volumes or mounted directories.
 
 ### 4.2 Target Deployment Architecture
 
-The target architecture is illustrated below.
+The following diagram illustrates the target architecture. The two persistent storage locations are separate so that Knowledge Base files and PostgreSQL data can be managed and backed up independently.
 
 ```mermaid
 flowchart TB
-    User[User / Administrator]
+    User["User / Administrator"]
 
-    subgraph Docker["Docker-Based Deployment"]
-        Frontend["Angular Frontend Container"]
-        Backend["Quarkus Backend Container"]
-        Database["PostgreSQL Container"]
-        Volume[("Persistent Filesystem Volume<br/>Knowledge Base Documents")]
+    subgraph VM["VM Server"]
+        subgraph Docker["Docker-Based Deployment"]
+            Frontend["Angular Frontend Container"]
+            Backend["Quarkus Backend Container"]
+            Database["PostgreSQL Container"]
 
-        Frontend -->|REST API requests| Backend
-        Backend -->|Metadata queries| Database
-        Backend -->|Read and write files| Volume
+            KBVolume[("Persistent Knowledge Base Volume")]
+            DBVolume[("Persistent PostgreSQL Data Volume")]
+
+            Frontend -->|"REST API requests"| Backend
+            Backend -->|"Metadata queries"| Database
+            Backend -->|"Read and write files"| KBVolume
+            Database -->|"Database files"| DBVolume
+        end
+
+        HostStorage["Optional mounted host directories"]
     end
 
     User --> Frontend
 ```
 
+The diagram shows the logical deployment. In the preferred configuration, named Docker volumes provide persistent storage. Alternatively, the deployment can use mounted host directories on the VM server. The application must use one configured persistent storage arrangement for each data store.
+
 ### 4.3 Knowledge Base Upload and Storage
 
 1. An administrator uploads a Knowledge Base as a ZIP file through the Angular frontend.
-2. The Quarkus backend validates the archive, including its paths, file types, and size limits.
-3. The backend safely extracts the archive into the configured Knowledge Base storage location on the persistent filesystem volume.
-4. The backend stores the associated metadata and permissions in PostgreSQL.
-5. Users access authorised Knowledge Base content through the REST API.
+2. The Quarkus backend validates the archive, including its paths, file types, structure, and size limits.
+3. The backend extracts the archive into a temporary directory and validates the extracted content.
+4. The backend activates the validated content in the configured persistent Knowledge Base storage location.
+5. The backend stores the associated metadata and permissions in PostgreSQL.
+6. Users access authorised Knowledge Base content through the REST API.
 
 Knowledge Base documents are stored on the persistent filesystem, not inside the PostgreSQL database. PostgreSQL stores the associated metadata.
 
@@ -202,13 +216,18 @@ The configured storage root is controlled by the server and cannot be overridden
 
 - Deploy the Angular frontend, Quarkus backend, and PostgreSQL as separate Docker containers.
 - Keep Knowledge Base documents on persistent storage independent of the backend container lifecycle.
+- Keep PostgreSQL data on separate persistent storage independent of the database container lifecycle.
+- Use a named Docker volume for Knowledge Base storage by default.
+- Use a mounted host directory instead when administrators require direct access to Knowledge Base files on the VM server.
 - Ensure the backend is the authorised access point for protected Knowledge Base content.
 - Configure database credentials and other secrets securely; do not hard-code them into application source code.
 - Ensure the deployment can be recreated consistently across development, testing, and production environments.
+- Ensure that container replacement or recreation does not unintentionally delete persistent data.
 
 ---
 
 ## 5. Technology Stack
+
 TOGAFmate will use a Docker-based containerised deployment architecture.
 
 | Component | Technology |
@@ -217,7 +236,10 @@ TOGAFmate will use a Docker-based containerised deployment architecture.
 | Backend | Java / Quarkus |
 | API | REST |
 | Database | PostgreSQL |
-| Document storage | Server filesystem |
+| Document storage | Persistent server filesystem |
+| Preferred Knowledge Base storage | Named Docker volume |
+| Alternative Knowledge Base storage | Mounted host directory on the VM server |
+| PostgreSQL storage | Separate persistent Docker volume or mounted host directory |
 | Import format | ZIP |
 | Document format | Markdown |
 | Build | Gradle |
@@ -235,15 +257,19 @@ The initial implementation will be designed to run locally using Docker and will
 
 TOGAFmate uses Docker containerisation for application deployment. Knowledge Base files are stored in persistent storage on the VM server and accessed by the application through a Docker volume or a mounted host directory.
 
+The preferred option is a named Docker volume when administrators do not require direct host access to individual files. A mounted host directory is an alternative when direct filesystem access is needed.
+
 ### 6.1 Knowledge Base Storage
 
 - **Docker containerisation:** The application components run in Docker containers on the VM server.
-- **Persistent Knowledge Base storage:** Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server. A named Docker volume is the preferred option when direct host access to files is not required.
+- **Persistent Knowledge Base storage:** Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server.
+- **Preferred storage option:** Use a named Docker volume unless administrators need direct host access to the Knowledge Base files.
 - **Data persistence:** Knowledge Base files must survive container restarts, upgrades, replacement, and recreation.
 - **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, permissions, and optional audit records. Actual Knowledge Base documents and supporting resources are stored on the filesystem.
 - **Separate storage:** PostgreSQL data and Knowledge Base files use separate persistent storage locations.
 - **Storage configuration:** The deployment administrator configures the storage locations. Uploaded archives cannot override these locations.
 - **Access control:** Filesystem permissions and backend authorisation must prevent unauthorised access to Knowledge Base content.
+- **Container lifecycle:** Application containers must not be treated as the permanent storage location for Knowledge Base files or PostgreSQL data.
 
 ### 6.2 Knowledge Base Content Structure
 
@@ -265,15 +291,21 @@ KnowledgeBaseStorage/
 
 The `KnowledgeBaseStorage` directory is illustrative. In deployment, it maps to a named Docker volume or a mounted host directory on the VM server.
 
+The actual filesystem path is configured by the deployment administrator and is not determined by the uploaded archive.
+
 ### 6.3 Upload and Storage Process
 
 1. An administrator uploads a Knowledge Base as a ZIP archive.
 2. The backend validates the archive, including file paths, file types, archive size, file count, and total extracted size.
-3. The backend safely extracts the archive into the configured persistent storage location on the VM server.
-4. The backend registers or updates the Knowledge Base metadata in PostgreSQL.
-5. The application accesses the extracted files through authorised backend APIs.
+3. The backend extracts the archive into a temporary directory.
+4. The backend validates the extracted content and checks for unsafe resource paths.
+5. The backend activates the validated content in the configured persistent storage location on the VM server.
+6. The backend registers or updates the Knowledge Base metadata in PostgreSQL.
+7. The application accesses the extracted files through authorised backend APIs.
 
 Knowledge Base content is extracted during upload. Subsequent requests read the stored files rather than extracting the archive again.
+
+The import process must not expose partially uploaded or invalid Knowledge Bases. If an import fails, temporary files must be cleaned up and the existing active Knowledge Base must remain usable.
 
 ### 6.4 Persistence, Backup and Recovery
 
@@ -282,8 +314,16 @@ Knowledge Base content is extracted during upload. Subsequent requests read the 
 - PostgreSQL data must also use persistent storage, configured separately from the Knowledge Base files.
 - Backups must cover both PostgreSQL data and the persistent Knowledge Base filesystem.
 - Backup and recovery procedures must account for consistency between database metadata and stored files.
-- Persistent storage alone does not protect against disk failure, accidental deletion, or loss of the VM. Backups must be stored in a suitable separate location.
+- Persistent storage alone does not protect against disk failure, accidental deletion, or loss of the VM.
+- Backups must be stored in a suitable separate location, preferably one that does not depend solely on the same VM or disk.
 - The configured storage locations and backup destinations must be protected against unauthorised access.
+- Recovery procedures must restore the database and the corresponding Knowledge Base files to a mutually consistent state.
+
+**Backup consistency principle:** PostgreSQL metadata and the filesystem content must be backed up and restored in a coordinated manner. A database backup referring to files that are missing, or filesystem content with no corresponding database metadata, can leave the application in an inconsistent state.
+
+The detailed backup schedule, retention periods, and recovery procedures will be defined during deployment design.
+
+---
 
 ## 7. Knowledge Base README.md
 
@@ -367,9 +407,11 @@ The README structure must be consistent across all Knowledge Bases.
 
 The backend will validate the required fields and verify that the folder identifier conforms to the application's naming rules.
 
+---
+
 ## 8. Table of Contents
 
-Each Knowledge Base will have a separate `TABLE_OF_CONTENTS` resource.
+Each Knowledge Base will have a separate `TABLE_OF_CONTENTS.md` resource.
 
 The Table of Contents will provide the navigation structure for the documents within that Knowledge Base.
 
@@ -401,7 +443,7 @@ The initial design will follow this process:
 
 ### 8.3 Table of Contents Implementation
 
-Two implementation options have been identified:
+Two implementation options have been identified.
 
 **Option A — Angular component**
 
@@ -414,6 +456,8 @@ The Knowledge Base contains an HTML Table of Contents that the frontend displays
 The implementation approach will be decided during detailed design.
 
 Regardless of the chosen approach, the backend must enforce authorisation whenever a document or supporting resource is requested.
+
+---
 
 ## 9. Common Storage and Processing
 
@@ -430,11 +474,13 @@ The import process will:
 5. Check file types and archive limits.
 6. Extract the files into a temporary directory.
 7. Validate the extracted content and resource paths.
-8. Move or activate the validated content in the configured storage directory.
+8. Move or activate the validated content in the configured persistent storage directory.
 9. Register the Knowledge Base and document metadata in PostgreSQL.
 10. Make the Knowledge Base available according to its access permissions.
 
 The application must avoid exposing partially uploaded or invalid Knowledge Bases.
+
+The import process must handle failures without corrupting an existing active Knowledge Base or leaving inconsistent database metadata.
 
 ### 9.2 Document Retrieval
 
@@ -455,20 +501,20 @@ The filesystem stores the actual content.
 
 PostgreSQL stores metadata and application information.
 
-For example:
-
 | Information | Storage location |
 |---|---|
-| Knowledge Base Markdown files | Filesystem |
-| Images and supporting resources | Filesystem |
-| Knowledge Base README | Filesystem |
-| Table of Contents resource | Filesystem |
+| Knowledge Base Markdown files | Persistent filesystem |
+| Images and supporting resources | Persistent filesystem |
+| Knowledge Base README | Persistent filesystem |
+| Table of Contents resource | Persistent filesystem |
 | Knowledge Base title and version metadata | PostgreSQL |
 | Document metadata | PostgreSQL |
 | Access permissions | PostgreSQL |
 | Administrative audit information | PostgreSQL, where required |
 
 The application will not maintain duplicate copies of the Markdown documents in PostgreSQL.
+
+The Knowledge Base filesystem and PostgreSQL data will use separate persistent storage locations.
 
 ### 9.4 Replacing a Knowledge Base
 
@@ -478,7 +524,21 @@ The application must prevent users from accessing an incomplete replacement.
 
 The implementation must also define how failed imports are rolled back and how previous versions are retained or removed.
 
+Replacement operations must consider both PostgreSQL metadata and filesystem content. The application must not leave metadata pointing to missing files or leave obsolete content that is incorrectly registered as active.
+
 The exact replacement and retention policy will be decided during detailed design.
+
+### 9.5 Removing a Knowledge Base
+
+When an administrator removes a Knowledge Base, the application must coordinate the removal of its metadata and stored files.
+
+The implementation must define how it handles failures during removal so that the database and filesystem do not become inconsistent.
+
+Where appropriate, the application should use a controlled deletion or recovery mechanism rather than immediately and irreversibly deleting content.
+
+The detailed deletion and recovery policy will be decided during detailed design.
+
+---
 
 ## 10. Access Control and Security
 
@@ -553,6 +613,10 @@ The application should extract content to a temporary directory and activate it 
 
 If an import fails, the application must clean up temporary files and avoid leaving inconsistent metadata or partially active content.
 
+Replacement and removal operations must also be designed to preserve database and filesystem consistency when failures occur.
+
+---
+
 ## 11. Development Principles
 
 TOGAFmate will follow these development principles:
@@ -562,17 +626,22 @@ TOGAFmate will follow these development principles:
 - Separation of frontend and backend.
 - Separation of metadata from document content.
 - PostgreSQL for structured metadata and permissions.
-- Filesystem storage for Markdown and supporting resources.
+- Persistent filesystem storage for Markdown and supporting resources.
+- Separate persistent storage for Knowledge Base files and PostgreSQL data.
 - Consistent structure for all Knowledge Bases.
 - ZIP as the initial import format.
 - Secure document access through the backend.
 - Server-side authorisation for all protected operations.
+- Coordinated backup and recovery for database metadata and filesystem content.
+- Safe replacement and removal of Knowledge Bases.
 - Automated testing.
 - Continuous code-quality analysis.
-- Containerised deployment.
+- Containerised deployment using Docker.
 - Prefer proven technologies over reinventing functionality.
 - Keep the platform extensible.
 - Maintain clear and complete documentation.
+
+---
 
 ## 12. Initial Project Scope
 
@@ -587,7 +656,7 @@ The scope includes:
 5. Knowledge Base metadata management.
 6. Document metadata management.
 7. ZIP upload and validation.
-8. Safe extraction to the server filesystem.
+8. Safe extraction to persistent server filesystem storage.
 9. Knowledge Base folder structure validation.
 10. README validation.
 11. Table of Contents display.
@@ -598,9 +667,11 @@ The scope includes:
 16. Server-side authorisation.
 17. Safe replacement and removal of Knowledge Bases.
 18. Docker containerisation.
-19. Automated testing.
-20. JaCoCo code coverage.
-21. SonarQube integration.
+19. Persistent storage configuration for Knowledge Base files and PostgreSQL data.
+20. Backup and recovery procedures for persistent data.
+21. Automated testing.
+22. JaCoCo code coverage.
+23. SonarQube integration.
 
 Additional capabilities, including advanced search and AI-assisted knowledge discovery, may be introduced in later releases.
 
@@ -617,15 +688,30 @@ TOGAFmate will not implement those repositories as modules within this applicati
 
 Its responsibility is to manage Knowledge Bases and provide secure access to their content.
 
+---
+
 ## 13. Project Status
 
 **Status: PLANNING**
 
 TOGAFmate is currently in the planning and initial design phase.
 
-The core technology choices and Knowledge Base storage approach have been identified. Detailed design is still required for areas such as the final Table of Contents implementation, authentication integration, database schema, replacement policy, and API contracts.
+The core technology choices, Docker-based deployment architecture, and Knowledge Base storage approach have been identified.
+
+Detailed design is still required for areas such as:
+
+- The final Table of Contents implementation.
+- Authentication integration.
+- Database schema.
+- REST API contracts.
+- Knowledge Base replacement and deletion policies.
+- Persistent volume and host-directory configuration.
+- Backup schedules, retention, and recovery procedures.
+- Deployment configuration for the VM server.
 
 The project will progress through requirements definition, detailed design, implementation, testing, and deployment.
+
+---
 
 ## 14. Contributing
 
@@ -645,6 +731,8 @@ Contributors will be able to participate in:
 - Feature development.
 
 Contribution guidelines will be added as the project matures.
+
+---
 
 ## 15. License
 
