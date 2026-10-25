@@ -229,50 +229,61 @@ TOGAFmate will use a Docker-based containerised deployment architecture.
 
 The initial implementation will be designed to run locally using Docker and will also support development directly from IntelliJ IDEA Community Edition.
 
-## 6. Knowledge Base Structure
+---
 
-Each Knowledge Base must follow the same folder structure.
+## 6. Knowledge Base Structure and Storage
 
-The Knowledge Base folder name will be derived from its title and version number. The folder name must be unique within the Knowledge Base storage directory.
+TOGAFmate uses Docker containerisation for application deployment. Knowledge Base files are stored in persistent storage on the VM server and accessed by the application through a Docker volume or a mounted host directory.
 
-### 6.1 Example Folder Structure
+### 6.1 Knowledge Base Storage
+
+- **Docker containerisation:** The application components run in Docker containers on the VM server.
+- **Persistent Knowledge Base storage:** Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server. A named Docker volume is the preferred option when direct host access to files is not required.
+- **Data persistence:** Knowledge Base files must survive container restarts, upgrades, replacement, and recreation.
+- **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, permissions, and optional audit records. Actual Knowledge Base documents and supporting resources are stored on the filesystem.
+- **Separate storage:** PostgreSQL data and Knowledge Base files use separate persistent storage locations.
+- **Storage configuration:** The deployment administrator configures the storage locations. Uploaded archives cannot override these locations.
+- **Access control:** Filesystem permissions and backend authorisation must prevent unauthorised access to Knowledge Base content.
+
+### 6.2 Knowledge Base Content Structure
+
+Each Knowledge Base is stored in its own directory on the persistent filesystem. The directory name is derived from the Knowledge Base title and version.
+
+Example:
 
 ```text
-knowledge-bases/
+KnowledgeBaseStorage/
 └── TOGAF_Architecture_Guide_v1.0/
     ├── README.md
-    ├── TABLE_OF_CONTENTS
-    ├── 01_Introduction.md
-    ├── 02_Architecture_Principles.md
-    ├── 03_Business_Architecture.md
-    ├── 04_Data_Architecture.md
-    └── images/
-        └── architecture.png
+    ├── TABLE_OF_CONTENTS.md
+    ├── Chapter_01.md
+    ├── Chapter_02.md
+    └── resources/
+        ├── diagrams/
+        └── images/
 ```
 
-The structure is illustrative. The number and names of Markdown documents will depend on the Knowledge Base content.
+The `KnowledgeBaseStorage` directory is illustrative. In deployment, it maps to a named Docker volume or a mounted host directory on the VM server.
 
-Every Knowledge Base must include:
+### 6.3 Upload and Storage Process
 
-- A `README.md` file.
-- A `TABLE_OF_CONTENTS` resource.
-- Its Markdown documents.
-- Any supporting resources required by those documents.
+1. An administrator uploads a Knowledge Base as a ZIP archive.
+2. The backend validates the archive, including file paths, file types, archive size, file count, and total extracted size.
+3. The backend safely extracts the archive into the configured persistent storage location on the VM server.
+4. The backend registers or updates the Knowledge Base metadata in PostgreSQL.
+5. The application accesses the extracted files through authorised backend APIs.
 
-### 6.2 Folder Naming Convention
+Knowledge Base content is extracted during upload. Subsequent requests read the stored files rather than extracting the archive again.
 
-The folder name will contain the Knowledge Base title and version.
+### 6.4 Persistence, Backup and Recovery
 
-For example:
-
-- Knowledge Base title: `TOGAF Architecture Guide v1.0`
-- Folder name: `TOGAF_Architecture_Guide_v1.0`
-
-The folder name will be used as a storage identifier.
-
-The backend will determine the actual filesystem location by combining the configured storage root with the validated Knowledge Base identifier.
-
-The application must not accept arbitrary filesystem paths from uploaded content.
+- Knowledge Base files must not be stored only in a container's writable layer.
+- Recreating or upgrading an application container must not delete Knowledge Base content.
+- PostgreSQL data must also use persistent storage, configured separately from the Knowledge Base files.
+- Backups must cover both PostgreSQL data and the persistent Knowledge Base filesystem.
+- Backup and recovery procedures must account for consistency between database metadata and stored files.
+- Persistent storage alone does not protect against disk failure, accidental deletion, or loss of the VM. Backups must be stored in a suitable separate location.
+- The configured storage locations and backup destinations must be protected against unauthorised access.
 
 ## 7. Knowledge Base README.md
 
