@@ -411,21 +411,40 @@ Backup schedules, retention periods, and detailed recovery procedures will be de
 
 ## 7. Knowledge Base README.md
 
-Each Knowledge Base must contain a `README.md` file describing the Knowledge Base.
+Each Knowledge Base ZIP file must contain a `README.md` file in its root directory.
 
-The README will provide the information required to identify and understand the content.
+The `README.md` describes and identifies the Knowledge Base. It must contain the three required fields and may contain the three optional fields defined below.
 
-### 7.1 Title and Version Number
+### 7.1 README.md Fields
 
-The title must include the Knowledge Base version number.
+| Field | Required? | Description |
+|---|---|---|
+| `title` | **Required** | The display title of the Knowledge Base. |
+| `folder_name_version` | **Required** | The folder identifier used to store the Knowledge Base files. |
+| `version` | **Required** | The version number of the Knowledge Base. |
+| `author` | Optional | The name of the author or responsible team. |
+| `email_address` | Optional | The contact email address. |
+| `Table_Of_Contents` | Optional | A reference to the Table of Contents resource, if provided. |
+
+The field names must be used consistently across all Knowledge Bases.
+
+Optional fields may be omitted or left blank. The backend must reject an upload if any required field is missing or invalid.
+
+### 7.2 Title
+
+The `title` field identifies the Knowledge Base and is displayed to users.
 
 Example:
 
 ```text
-TOGAF Architecture Guide v1.0
+TOGAF Architecture Guide
 ```
 
-The title and version number will be used to determine the Knowledge Base folder name.
+The title does not have to contain the version number because the version is stored separately.
+
+### 7.3 Folder Name and Version
+
+The `folder_name_version` field identifies the directory in which the Knowledge Base content is stored.
 
 Example:
 
@@ -433,63 +452,79 @@ Example:
 TOGAF_Architecture_Guide_v1.0
 ```
 
-The folder name must be unique within the configured Knowledge Base storage directory.
+The `version` field identifies the version of the Knowledge Base.
 
-### 7.2 Description
-
-The README must contain a short description explaining the purpose and contents of the Knowledge Base.
-
-For example:
-
-> A collection of learning materials covering TOGAF architecture concepts and the Architecture Development Method (ADM).
-
-### 7.3 Knowledge Base Content Type
-
-The README must identify one of the supported content types:
-
-- Free.
-- Open-source.
-- Copyrighted.
-
-The relevant licence or copyright terms must also be respected.
-
-### 7.4 Target Folder
-
-The README must identify the intended Knowledge Base folder.
-
-For example:
+Example:
 
 ```text
-TOGAF_Architecture_Guide_v1.0
+1.0
 ```
 
-The target folder is an identifier, not an arbitrary filesystem path.
+The folder identifier must follow the application's naming rules and must not contain an arbitrary filesystem path. The backend determines the actual storage location from its configuration.
 
-The actual storage location will be determined by the Quarkus backend configuration.
+### 7.4 Author and Email Address (Optional)
 
-### 7.5 Example README.md
+The `author` field identifies the person or team responsible for the Knowledge Base.
+
+The `email_address` field provides an optional contact address.
+
+Neither field is mandatory. The Knowledge Base can be uploaded without an author or email address.
+
+### 7.5 Table of Contents (Optional)
+
+The `Table_Of_Contents` field identifies the Table of Contents resource when one is supplied.
+
+Example:
+
+```text
+TABLE_OF_CONTENTS.md
+```
+
+The field is optional. If it is omitted or blank, TOGAFmate must still provide document navigation, using an application-defined fallback such as generating navigation from the registered documents and their metadata.
+
+If a Table of Contents resource is specified, the backend must validate its reference and ensure that it points to an authorised resource within the Knowledge Base.
+
+### 7.6 Example README.md
+
+The following example includes all six fields. The three optional fields are explicitly labelled.
 
 ```markdown
-# TOGAF Architecture Guide v1.0
+# TOGAF Architecture Guide
 
-## Description
+## title
+TOGAF Architecture Guide
 
-A collection of learning materials covering TOGAF
-architecture concepts and the Architecture Development
-Method (ADM).
-
-## Knowledge Base Content Type
-
-Open-source
-
-## Target Folder
-
+## folder_name_version
 TOGAF_Architecture_Guide_v1.0
+
+## version
+1.0
+
+## author (Optional)
+Architecture Documentation Team
+
+## email_address (Optional)
+architecture@example.com
+
+## Table_Of_Contents (Optional)
+TABLE_OF_CONTENTS.md
 ```
 
-The README structure must be consistent across all Knowledge Bases.
+The example email address is illustrative.
 
-The backend will validate the required fields and verify that the folder identifier conforms to the application's naming rules.
+### 7.7 Backend Validation
+
+During ZIP upload, the backend must:
+
+1. Locate and read the `README.md` file.
+2. Validate that `title`, `folder_name_version`, and `version` are present and valid.
+3. Read `author`, `email_address`, and `Table_Of_Contents` when supplied.
+4. Validate the folder identifier and any Table of Contents reference.
+5. Reject invalid uploads before activating the Knowledge Base.
+6. Register the validated metadata in PostgreSQL.
+7. Store the extracted documents and resources in the configured persistent filesystem storage.
+
+The metadata fields defined in this chapter must be consistent with the Knowledge Base metadata fields defined in Chapter 6.
 
 ---
 
