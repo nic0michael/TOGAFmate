@@ -149,107 +149,64 @@ It does not replace the actual licence, copyright notice, or permission terms.
 
 TOGAFmate must not assume that content is free to copy, modify, or redistribute simply because it is available without charge.
 
+---
+
 ## 4. Application Architecture
 
-TOGAFmate will use a web application architecture consisting of an Angular frontend, a Java/Quarkus backend, PostgreSQL, and filesystem storage.
+TOGAFmate will use a **Docker-based deployment architecture**. The application components will run in separate containers, with persistent storage for Knowledge Base documents.
 
-### 4.1 Architecture Overview
+### 4.1 Architecture Components
+
+- **Angular Frontend:** Provides the user interface for browsing, uploading, and managing Knowledge Bases.
+- **Quarkus Backend:** Exposes REST APIs, implements business logic, validates ZIP uploads, manages access control, and serves Knowledge Base content.
+- **PostgreSQL Database:** Stores Knowledge Base metadata, document metadata, permissions, and optional audit records.
+- **Knowledge Base Filesystem:** Stores extracted Markdown documents, images, supporting resources, `README.md`, and `TABLE_OF_CONTENTS`.
+- **Docker:** Provides containerisation for the application components and supports consistent deployment.
+- **Persistent Docker Volume:** Stores Knowledge Base files so that they remain available when containers are restarted or replaced.
+
+### 4.2 Target Deployment Architecture
+
+The target architecture is illustrated below.
 
 ```mermaid
-flowchart TD
-    U[User or Administrator]
-    A[Angular Frontend]
-    Q[Quarkus REST API]
-    AUTH[Authentication and Authorisation]
-    DB[(PostgreSQL)]
-    FS[Server Filesystem]
-    ZIP[ZIP Upload and Validation]
+flowchart TB
+    User[User / Administrator]
 
-    U --> A
-    A --> Q
-    Q --> AUTH
-    Q --> DB
-    Q --> FS
-    Q --> ZIP
-    ZIP --> FS
-    ZIP --> DB
+    subgraph Docker["Docker-Based Deployment"]
+        Frontend["Angular Frontend Container"]
+        Backend["Quarkus Backend Container"]
+        Database["PostgreSQL Container"]
+        Volume[("Persistent Filesystem Volume<br/>Knowledge Base Documents")]
+
+        Frontend -->|REST API requests| Backend
+        Backend -->|Metadata queries| Database
+        Backend -->|Read and write files| Volume
+    end
+
+    User --> Frontend
 ```
 
-### 4.2 Angular Frontend
+### 4.3 Knowledge Base Upload and Storage
 
-The Angular frontend will provide the user interface for:
+1. An administrator uploads a Knowledge Base as a ZIP file through the Angular frontend.
+2. The Quarkus backend validates the archive, including its paths, file types, and size limits.
+3. The backend safely extracts the archive into the configured Knowledge Base storage location on the persistent filesystem volume.
+4. The backend stores the associated metadata and permissions in PostgreSQL.
+5. Users access authorised Knowledge Base content through the REST API.
 
-- Browsing Knowledge Bases.
-- Displaying Knowledge Base information.
-- Displaying Tables of Contents.
-- Reading Markdown documents.
-- Displaying associated images.
-- Uploading Knowledge Bases for administrators.
-- Managing Knowledge Base metadata.
-- Managing access permissions.
+Knowledge Base documents are stored on the persistent filesystem, not inside the PostgreSQL database. PostgreSQL stores the associated metadata.
 
-The frontend will communicate with the backend through REST APIs.
+The configured storage root is controlled by the server and cannot be overridden by the uploaded archive.
 
-The frontend must not access the server filesystem or PostgreSQL directly.
+### 4.4 Deployment Principles
 
-### 4.3 Java and Quarkus Backend
+- Deploy the Angular frontend, Quarkus backend, and PostgreSQL as separate Docker containers.
+- Keep Knowledge Base documents on persistent storage independent of the backend container lifecycle.
+- Ensure the backend is the authorised access point for protected Knowledge Base content.
+- Configure database credentials and other secrets securely; do not hard-code them into application source code.
+- Ensure the deployment can be recreated consistently across development, testing, and production environments.
 
-The Quarkus backend will implement the application's business logic and REST APIs.
-
-Its responsibilities will include:
-
-- Authentication and authorisation integration.
-- Knowledge Base administration.
-- ZIP upload and validation.
-- Safe extraction of uploaded archives.
-- Knowledge Base and document metadata management.
-- Filesystem access.
-- Document retrieval.
-- Table of Contents data retrieval.
-- Access permission enforcement.
-- Error handling and audit logging for administrative operations.
-
-The backend will be responsible for ensuring that users only access Knowledge Bases and documents for which they have permission.
-
-### 4.4 PostgreSQL
-
-PostgreSQL will store structured application data, including:
-
-- Knowledge Base metadata.
-- Knowledge Base version information.
-- Document metadata.
-- Knowledge Base and document relationships.
-- User and role references where required.
-- Access permissions.
-- Administrative audit information where required.
-
-The database will not store duplicate copies of the Markdown documents or their supporting files.
-
-### 4.5 Filesystem Storage
-
-The server filesystem will store the actual Knowledge Base content.
-
-This includes:
-
-- Markdown documents.
-- Images.
-- Other permitted supporting resources.
-- Any additional files approved by the import rules.
-
-The storage root will be configured by the application administrator.
-
-An uploaded archive must not be allowed to determine or override the server's storage root.
-
-### 4.6 Separation of Responsibilities
-
-The application will maintain a clear separation between:
-
-- **Angular:** user interface and navigation.
-- **Quarkus:** application logic, APIs, security, and file access.
-- **PostgreSQL:** metadata, permissions, and application records.
-- **Filesystem:** actual Knowledge Base documents and supporting resources.
-
-This separation avoids storing duplicate document content in the database and keeps the implementation straightforward.
+---
 
 ## 5. Technology Stack
 
