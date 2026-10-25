@@ -867,7 +867,187 @@ Contribution guidelines will be added as the project matures.
 
 ---
 
-## 15. License
+## 15. Security
+
+### 15.1 VM Administrator Provides Folder-Level Security
+
+The simplest option is to rely on the VM administrator to secure the folders used to store Knowledge Base documents.
+
+- The VM administrator configures operating-system folder permissions.
+- Only the designated TOGAFmate service account and authorised administrators should have access to the Knowledge Base storage folders.
+- Other users and processes must not have direct access to the stored files.
+- The PostgreSQL data directory must also be protected using appropriate folder permissions.
+- The application must run under a dedicated, non-administrator operating-system account.
+- Backups must be protected with access permissions equivalent to those of the original data.
+
+Advantages
+
+- Simple to implement.
+- Uses standard operating-system security.
+- Requires relatively little additional application development.
+
+Limitations
+
+- Security depends on correct VM configuration and ongoing administration.
+- Folder permissions do not provide application-level user permissions.
+- Users who can access the VM or its storage with sufficient privileges may bypass application controls.
+- This option alone does not provide comprehensive security for a remotely accessible application.
+
+### 15.2 Application-Level Authentication and Authorisation
+
+Introduce user authentication and role-based access control (RBAC) within TOGAFmate.
+
+- Users must authenticate before accessing protected Knowledge Bases.
+- Assign roles such as Administrator and Knowledge Base User.
+- Only administrators may upload, replace or delete Knowledge Bases.
+- The backend must enforce permissions on every protected API request.
+- The Angular frontend must not be relied upon to enforce security; hiding a button is not an access control.
+- Store passwords securely using a recognised password-hashing algorithm if local authentication is implemented.
+
+Advantages
+
+- Protects access through the application.
+- Allows different users to have different permissions.
+- Provides a foundation for future per-Knowledge-Base permissions.
+
+Limitations
+
+- Requires application development and user management.
+- Does not prevent VM administrators from accessing files directly.
+
+### 15.3 HTTPS for All Application Connections
+
+Use HTTPS to protect communication between users' browsers and TOGAFmate.
+
+- Configure TLS using a trusted certificate.
+- Redirect HTTP requests to HTTPS.
+- Ensure credentials, session tokens and Knowledge Base content are not transmitted over unencrypted connections.
+- Use secure cookie settings if browser-based sessions are implemented.
+- Secure connections between internal services where the deployment environment or threat model requires it.
+
+Advantages
+
+- Protects data in transit against interception and tampering.
+- Essential for a remotely accessible application.
+
+Limitations
+
+- Requires certificate configuration and renewal.
+- Does not replace authentication or authorisation.
+
+### 15.4 Network-Level Access Controls
+
+Restrict access to the VM and its services.
+
+- Expose only the required application entry point to the internet.
+- Use a firewall to restrict access to unnecessary ports.
+- Do not expose PostgreSQL directly to the internet.
+- Restrict SSH or remote administration to authorised administrators.
+- Keep backend services and internal Docker networks inaccessible to unauthorised external connections.
+
+Advantages
+
+- Reduces the application's attack surface.
+- Protects database and administrative services from direct external access.
+
+Limitations
+
+- Requires firewall, network and Docker configuration.
+- Incorrect configuration can prevent legitimate access or leave services exposed.
+
+### 15.5 Secure Configuration and Secrets
+
+Protect passwords, database credentials, signing keys and other sensitive configuration.
+
+- Do not commit secrets to Git or include them in the README or Docker images.
+- Use protected environment configuration or a dedicated secrets manager.
+- Restrict access to secret files and configuration.
+- Rotate credentials when exposure is suspected and periodically according to policy.
+
+Advantages
+
+- Reduces the risk of credential disclosure.
+- Supports safer deployment and maintenance.
+
+Limitations
+
+\- Requires disciplined secret management and operational procedures.
+
+### 15.6 VM and Container Hardening
+
+Harden the operating system and application runtime.
+
+- Apply operating-system and security updates.
+- Use supported versions of Java, Quarkus, Angular dependencies, PostgreSQL and Docker.
+- Run containers as non-root users where practical.
+- Grant containers only the filesystem and network access they require.
+- Avoid privileged containers and unnecessary host mounts.
+- Monitor security advisories and update vulnerable dependencies.
+
+Advantages
+
+- Reduces the risk of exploitation through known vulnerabilities.
+- Limits the impact of a compromised application component.
+
+Limitations
+
+\- Requires ongoing maintenance, testing and patch management.
+
+### 15.7 Encrypted Backups and Recovery
+
+Protect Knowledge Base files and PostgreSQL data against loss and unauthorised access.
+
+- Back up the Knowledge Base storage and PostgreSQL data.
+- Encrypt backups, especially when stored off the VM.
+- Restrict access to backup files and credentials.
+- Test restoration periodically.
+- Coordinate database and file backups so that restored metadata refers to the correct stored documents.
+
+Advantages
+
+- Supports recovery after data loss, corruption or security incidents.
+- Reduces the risk of sensitive documentation being exposed through backups.
+
+Limitations
+
+\- Requires storage, retention and recovery procedures.
+
+### 15.8 Audit Logging and Security Monitoring
+
+Record important security-sensitive events.
+
+- Record successful and failed login attempts.
+- Record Knowledge Base uploads, replacements and deletions.
+- Record administrative and permission changes.
+- Avoid logging passwords, tokens or other secrets.
+- Restrict access to logs and define how long they are retained.
+
+Advantages
+
+- Helps investigate suspicious activity and identify misuse.
+- Improves accountability for administrative operations.
+
+Limitations
+
+\- Requires log management, retention and review procedures.
+
+## Recommended implementation order
+
+| Priority | Option                                | Recommendation                                     |
+| -------- | ------------------------------------- | -------------------------------------------------- |
+| 1        | 15.1 VM folder permissions            | Implement from the start.                          |
+| 2        | 15.2 Authentication and authorisation | Essential before multi-user access.                |
+| 3        | 15.3 HTTPS                            | Essential for remote access.                       |
+| 4        | 15.4 Network controls                 | Essential before internet exposure.                |
+| 5        | 15.5 Secrets management               | Implement before production deployment.            |
+| 6        | 15.6 VM and container hardening       | Maintain throughout the project.                   |
+| 7        | 15.7 Encrypted backups                | Implement before storing important documents.      |
+| 8        | 15.8 Audit logging                    | Add for accountability and incident investigation. |
+
+
+---
+
+## 16. License
 
 TOGAFmate is licensed under the **GNU General Public License version 3.0 (GPL-3.0)**.
 
