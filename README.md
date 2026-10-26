@@ -13,7 +13,7 @@ cd backend
 .\gradlew.bat clean build
 ```
 
-On macOS or Linux, use `./gradlew clean build` from the `backend` directory. The build runs the backend tests; they use H2 and do not need PostgreSQL.
+On macOS or Linux, use `./gradlew clean build` from the `backend` directory. The build runs the backend tests against the in-memory H2 database at `jdbc:h2:mem:togafmate-test`, using user `sa` and an empty password. Tests do not need PostgreSQL. This H2 URL is for tests only—the running application uses PostgreSQL. No H2 web console is configured. See the [H2 Database Engine](https://h2database.com/) and its [FAQ](https://h2database.com/html/faq.html) for H2 details and connection defaults.
 
 ### Run
 
