@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.togafmate.backend.config.BootstrapAdministratorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-26T16:04:05" hostname="DESKTOP-39PLV1C" time="0.939">
-  <properties/>
-  <testcase name="should_createEncodedAdministrator_whenBootstrapCredentialsAreConfigured()" classname="com.togafmate.backend.config.BootstrapAdministratorTest" time="0.939"/>
-  <system-out><![CDATA[2026-10-26T18:04:06.498+02:00  INFO 20648 --- [    Test worker] c.t.b.config.BootstrapAdministrator      : Bootstrapped administrator account
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

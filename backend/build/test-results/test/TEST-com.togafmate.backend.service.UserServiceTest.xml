@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.togafmate.backend.service.UserServiceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-26T16:04:10" hostname="DESKTOP-39PLV1C" time="0.03">
-  <properties/>
-  <testcase name="should_storeEncodedPasswordAndNoAccess_whenRegisteringUser()" classname="com.togafmate.backend.service.UserServiceTest" time="0.024"/>
-  <testcase name="should_returnNoUser_whenLogonPasswordDoesNotMatch()" classname="com.togafmate.backend.service.UserServiceTest" time="0.005"/>
-  <system-out><![CDATA[2026-10-26T18:04:10.954+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : Registered user account
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
