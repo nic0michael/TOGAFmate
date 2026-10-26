@@ -51,10 +51,6 @@ Write readable, maintainable, reliable code. Prefer the simplest solution that m
 - Test external failure cases, including invalid inputs, empty responses, HTTP errors, and exceptions.
 - Do not leave tests commented out or ignored.
 
-### Mocking Policy Dependency
-
-The original policies refer to `chameleon-tdd-testing-skill.md`, but it was not supplied. Use Mockito as specified above unless the project provides an additional, explicit Chameleon policy.
-
 ## 3. Angular Development and Testing
 
 ### Angular Coding Standard
