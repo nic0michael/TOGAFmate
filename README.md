@@ -756,6 +756,7 @@ TOGAFmate will follow these development principles:
 
 - Open-source development under GPL-3.0.
 - API-first development.
+- Provide Swagger API documentation to support testing the backend.
 - Separation of frontend and backend.
 - Separation of metadata from document content.
 - PostgreSQL for structured metadata and permissions.
