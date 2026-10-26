@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnowledgeBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">togafmate-backend</a> &gt; <a href="index.source.html" class="el_package">com.togafmate.backend.entity</a> &gt; <span class="el_source">KnowledgeBase.java</span></div><h1>KnowledgeBase.java</h1><pre class="source lang-java linenums">package com.togafmate.backend.entity;
+
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+/** Stores metadata that identifies a Knowledge Base. */
+@Entity
+@Table(name = &quot;knowledge_bases&quot;)
+public class KnowledgeBase {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String version;
+
+    private String description;
+
+    @Column(name = &quot;content_type&quot;, nullable = false)
+    private String contentType;
+
+    @Column(name = &quot;folder_name_version&quot;, nullable = false, unique = true)
+    private String folderNameVersion;
+
+    private String author;
+
+    @Column(name = &quot;email_address&quot;)
+    private String emailAddress;
+
+    @Column(name = &quot;table_of_contents&quot;)
+    private String tableOfContents;
+
+<span class="fc" id="L42">    protected KnowledgeBase() {</span>
+<span class="fc" id="L43">    }</span>
+
+    /** Creates metadata for a Knowledge Base. */
+    public KnowledgeBase(String title, String version, String description, String contentType,
+            String folderNameVersion) {
+<span class="fc" id="L48">        this(title, folderNameVersion, version, null, null, null, description, contentType);</span>
+<span class="fc" id="L49">    }</span>
+
+    /** Creates Knowledge Base metadata using the fields defined by the project specification. */
+    public KnowledgeBase(String title, String folderNameVersion, String version, String author,
+<span class="fc" id="L53">            String emailAddress, String tableOfContents, String description, String contentType) {</span>
+<span class="fc" id="L54">        this.title = title;</span>
+<span class="fc" id="L55">        this.folderNameVersion = folderNameVersion;</span>
+<span class="fc" id="L56">        this.version = version;</span>
+<span class="fc" id="L57">        this.author = author;</span>
+<span class="fc" id="L58">        this.emailAddress = emailAddress;</span>
+<span class="fc" id="L59">        this.tableOfContents = tableOfContents;</span>
+<span class="fc" id="L60">        this.description = description;</span>
+<span class="fc" id="L61">        this.contentType = contentType;</span>
+<span class="fc" id="L62">    }</span>
+
+    /** Returns the database identifier. */
+    public UUID getId() {
+<span class="fc" id="L66">        return id;</span>
+    }
+
+    /** Returns the Knowledge Base title. */
+    public String getTitle() {
+<span class="fc" id="L71">        return title;</span>
+    }
+
+    /** Returns the Knowledge Base version. */
+    public String getVersion() {
+<span class="fc" id="L76">        return version;</span>
+    }
+
+    /** Returns the Knowledge Base description. */
+    public String getDescription() {
+<span class="fc" id="L81">        return description;</span>
+    }
+
+    /** Returns the Knowledge Base content type. */
+    public String getContentType() {
+<span class="fc" id="L86">        return contentType;</span>
+    }
+
+    /** Returns the identifier of the Knowledge Base folder. */
+    public String getFolderNameVersion() {
+<span class="fc" id="L91">        return folderNameVersion;</span>
+    }
+
+    /** Returns the optional author. */
+    public String getAuthor() {
+<span class="fc" id="L96">        return author;</span>
+    }
+
+    /** Returns the optional author email address. */
+    public String getEmailAddress() {
+<span class="fc" id="L101">        return emailAddress;</span>
+    }
+
+    /** Returns the optional Table of Contents content or resource reference. */
+    public String getTableOfContents() {
+<span class="fc" id="L106">        return tableOfContents;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

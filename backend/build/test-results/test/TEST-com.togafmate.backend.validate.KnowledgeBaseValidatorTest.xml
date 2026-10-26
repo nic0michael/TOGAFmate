@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T15:40:44" hostname="DESKTOP-39PLV1C" time="0.718">
+  <properties/>
+  <testcase name="should_returnNoViolations_whenKnowledgeBaseHasValidRequiredMetadata()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.653"/>
+  <testcase name="should_rejectRegisteredFolderIdentifier_whenMetadataIsDuplicated()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.04"/>
+  <testcase name="should_rejectUnsupportedContentType_whenMetadataIsInvalid()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.004"/>
+  <testcase name="should_allowBlankOptionalEmail_whenMetadataIsValid()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.004"/>
+  <testcase name="should_rejectMissingRequiredFieldsAndUnsafeStorageIdentifier_whenMetadataIsInvalid()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.003"/>
+  <testcase name="should_rejectInvalidOptionalEmail_whenMetadataIsInvalid()" classname="com.togafmate.backend.validate.KnowledgeBaseValidatorTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
