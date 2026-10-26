@@ -6,7 +6,8 @@ Write readable, maintainable, reliable code. Prefer the simplest solution that m
 
 ### Project Specification and Decision Rules
 
-- Treat the approved project specifications and explicit user decisions as the source of truth.
+- Treat `SPECS.md` and explicit user decisions as the source of truth for project requirements. `README.md` is project-facing documentation and is not the canonical specification unless the user explicitly says otherwise.
+- Read and follow `SPECS.md` before making implementation decisions that depend on project requirements.
 - If specifications conflict, follow the most recent explicit user decision. If the conflict cannot be resolved clearly, stop and ask the user.
 - Implement only the task explicitly assigned by the user.
 - Do not invent or change business rules, architecture, technology choices, interfaces, or database designs without approval.
@@ -40,7 +41,7 @@ Rules:
 - Enforce authentication and authorisation in the backend; never rely on frontend controls alone for security.
 - Never hardcode, expose, or commit passwords, tokens, secrets, or sensitive configuration.
 - Do not log secrets, credentials, or sensitive personal or business data.
-- Follow the security requirements in the project specification.
+- Follow the security requirements in `SPECS.md`.
 - If a security requirement is unclear or requires a design decision, ask the user before proceeding.
 
 ## 2. Java Development and Testing
