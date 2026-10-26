@@ -4,7 +4,7 @@
 
 The application supports multiple Knowledge Bases, each containing Markdown documents and associated resources such as images. Knowledge Bases can contain learning material, technical documentation, reference information, and other authorised content.
 
-TOGAFmate uses Angular for the frontend, Java with Quarkus for the backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. The application uses a Docker-based deployment architecture on a VM server.
+TOGAFmate uses Angular for the frontend, Java for the backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. The application uses a Docker-based deployment architecture on a VM server.
 
 TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
@@ -80,7 +80,6 @@ The application will not require users to download an entire Knowledge Base to r
 ### 2.4 Knowledge Base Import
 
 Administrators will upload each Knowledge Base as a single ZIP file.
-
 
 The backend will:
 
@@ -161,7 +160,7 @@ TOGAFmate will use a **Docker-based deployment architecture** on a VM server. Th
 ### 4.1 Architecture Components
 
 - **Angular Frontend:** Provides the user interface for browsing, uploading, and managing Knowledge Bases.
-- **Quarkus Backend:** Exposes REST APIs, implements business logic, validates ZIP uploads, manages access control, and serves Knowledge Base content.
+- **Java Backend:** Exposes REST APIs, implements business logic, validates ZIP uploads, manages access control, and serves Knowledge Base content.
 - **PostgreSQL Database:** Stores Knowledge Base metadata, document metadata, permissions, and optional audit records.
 - **Knowledge Base Filesystem:** Stores extracted Markdown documents, images, supporting resources, `README.md`, and `TABLE_OF_CONTENTS.md`.
 - **Docker:** Provides containerisation for the application components and supports consistent deployment.
@@ -180,7 +179,7 @@ flowchart TB
     subgraph VM["VM Server"]
         subgraph Docker["Docker-Based Deployment"]
             Frontend["Angular Frontend Container"]
-            Backend["Quarkus Backend Container"]
+            Backend["Java Backend Container"]
             Database["PostgreSQL Container"]
 
             KBVolume[("Persistent Knowledge Base Volume")]
@@ -203,7 +202,7 @@ The diagram shows the logical deployment. In the preferred configuration, named 
 ### 4.3 Knowledge Base Upload and Storage
 
 1. An administrator uploads a Knowledge Base as a ZIP file through the Angular frontend.
-2. The Quarkus backend validates the archive, including its paths, file types, structure, and size limits.
+2. The Java backend validates the archive, including its paths, file types, structure, and size limits.
 3. The backend extracts the archive into a temporary directory and validates the extracted content.
 4. The backend activates the validated content in the configured persistent Knowledge Base storage location.
 5. The backend stores the associated metadata and permissions in PostgreSQL.
@@ -215,7 +214,7 @@ The configured storage root is controlled by the server and cannot be overridden
 
 ### 4.4 Deployment Principles
 
-- Deploy the Angular frontend, Quarkus backend, and PostgreSQL as separate Docker containers.
+- Deploy the Angular frontend, Java backend, and PostgreSQL as separate Docker containers.
 - Keep Knowledge Base documents on persistent storage independent of the backend container lifecycle.
 - Keep PostgreSQL data on separate persistent storage independent of the database container lifecycle.
 - Use a named Docker volume for Knowledge Base storage by default.
@@ -234,7 +233,7 @@ TOGAFmate will use a Docker-based containerised deployment architecture.
 | Component | Technology |
 |---|---|
 | Frontend | Angular |
-| Backend | Java / Quarkus |
+| Backend | Java |
 | API | REST |
 | Database | PostgreSQL |
 | Document storage | Persistent server filesystem |
@@ -784,7 +783,7 @@ The initial release will concentrate on establishing the core Knowledge Bases ap
 The scope includes:
 
 1. Angular web interface.
-2. Java/Quarkus backend.
+2. Java backend.
 3. REST API.
 4. PostgreSQL database.
 5. Knowledge Base metadata management.
@@ -869,6 +868,7 @@ Contribution guidelines will be added as the project matures.
 ---
 
 ## 15. Security
+
 Since this software is offered "Free without Warranty" or "Voetstoots" and the source code is provided to you, you are welcome to make changes to this code to meet your own security requirements
 
 ---
