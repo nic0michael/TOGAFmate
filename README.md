@@ -4,7 +4,7 @@
 
 The application supports multiple Knowledge Bases, each containing Markdown documents and associated resources such as images. Knowledge Bases can contain learning material, technical documentation, reference information, and other authorised content.
 
-TOGAFmate uses Angular for the frontend, Spring Boot with Spring Data JPA for the Java backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. The application uses a Docker-based deployment architecture on a VM server.
+TOGAFmate uses Angular for the frontend, Spring Boot with Spring Data JPA and Spring Security for the Java backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. User passwords are stored as BCrypt hashes. The application uses a Docker-based deployment architecture on a VM server.
 
 TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
@@ -835,7 +835,7 @@ The core technology choices, Docker-based deployment architecture, and Knowledge
 Detailed design is still required for areas such as:
 
 - The final Table of Contents implementation.
-- Authentication integration.
+- Authentication hardening and deployment configuration.
 - Database schema.
 - REST API contracts.
 - Knowledge Base replacement and deletion policies.

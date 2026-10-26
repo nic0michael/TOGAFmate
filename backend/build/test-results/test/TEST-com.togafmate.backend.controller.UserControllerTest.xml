@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.togafmate.backend.controller.UserControllerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T16:04:07" hostname="DESKTOP-39PLV1C" time="1.806">
+  <properties/>
+  <testcase name="should_denyKnowledgeBaseAccess_whenUserHasNoAccessPermission()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.752"/>
+  <testcase name="should_registerAndLogonWithoutReturningPassword_whenCredentialsAreValid()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.531"/>
+  <testcase name="should_requireAdministrator_whenChangingPermissions()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.022"/>
+  <testcase name="should_rejectLogon_whenPasswordIsIncorrect()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.387"/>
+  <testcase name="should_removePermissionAndRestoreNoAccess_whenLastPermissionIsRemoved()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.068"/>
+  <testcase name="should_addPermission_whenAdministratorRequestsChange()" classname="com.togafmate.backend.controller.UserControllerTest" time="0.034"/>
+  <system-out><![CDATA[2026-10-26T18:04:07.947+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Neither @ContextConfiguration nor @ContextHierarchy found for test class [UserControllerTest]: using SpringBootContextLoader
+2026-10-26T18:04:07.949+02:00  INFO 20648 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.togafmate.backend.controller.UserControllerTest]: UserControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T18:04:07.951+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizerFactory implementations for test class [UserControllerTest]: [OverrideAutoConfigurationContextCustomizerFactory, ObservabilityContextCustomizerFactory, TypeExcludeFiltersContextCustomizerFactory, PropertyMappingContextCustomizerFactory, WebDriverContextCustomizerFactory, ImportsContextCustomizerFactory, ExcludeFilterContextCustomizerFactory, HttpGraphQlTesterContextCustomizerFactory, DuplicateJsonObjectContextCustomizerFactory, MockitoContextCustomizerFactory, TestRestTemplateContextCustomizerFactory, WebTestClientContextCustomizerFactory, MockServerContainerContextCustomizerFactory, DynamicPropertiesContextCustomizerFactory]
+2026-10-26T18:04:07.958+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizers for test class [UserControllerTest]: [DisableObservabilityContextCustomizer, PropertyMappingContextCustomizer, WebDriverContextCustomizer, ImportsContextCustomizer, ExcludeFilterContextCustomizer, DuplicateJsonObjectContextCustomizer, MockitoContextCustomizer, TestRestTemplateContextCustomizer]
+2026-10-26T18:04:07.959+02:00  INFO 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.togafmate.backend.TogafmateBackendApplication for test class com.togafmate.backend.controller.UserControllerTest
+2026-10-26T18:04:07.963+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using TestExecutionListeners for test class [UserControllerTest]: [ServletTestExecutionListener, DirtiesContextBeforeModesTestExecutionListener, ApplicationEventsTestExecutionListener, MockitoTestExecutionListener, DependencyInjectionTestExecutionListener, DirtiesContextTestExecutionListener, TransactionalTestExecutionListener, SqlScriptsTestExecutionListener, WithSecurityContextTestExecutionListener, EventPublishingTestExecutionListener, ReactorContextTestExecutionListener, RestDocsTestExecutionListener, MockRestServiceServerResetTestExecutionListener, MockMvcPrintOnlyOnFailureTestExecutionListener, WebDriverTestExecutionListener, MockWebServiceServerTestExecutionListener, ResetMocksTestExecutionListener]
+2026-10-26T18:04:07.982+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:08.187+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:08.232+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:08.246+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:08.521+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0 where u1_0.user_id=?
+2026-10-26T18:04:08.531+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:08.729+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:08.730+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:08.738+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:08.742+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_users where user_id=?
+2026-10-26T18:04:08.746+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#register(UserCredentialsRequest)
+2026-10-26T18:04:08.753+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UserCredentialsRequest[userID=reader1, password=secret]]
+2026-10-26T18:04:08.843+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select count(*) from app_users u1_0 where u1_0.user_id=?
+2026-10-26T18:04:09.029+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.032+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:09.034+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.036+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : Registered user account
+2026-10-26T18:04:09.041+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:09.043+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [UserResponse[userID=reader1, permissions=[NO_ACCESS]]]
+2026-10-26T18:04:09.051+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.064+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#logon(UserCredentialsRequest)
+2026-10-26T18:04:09.065+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UserCredentialsRequest[userID=reader1, password=secret]]
+2026-10-26T18:04:09.071+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0 where u1_0.user_id=?
+2026-10-26T18:04:09.072+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.249+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : User logon succeeded
+2026-10-26T18:04:09.250+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:09.251+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [UserResponse[userID=reader1, permissions=[NO_ACCESS]]]
+2026-10-26T18:04:09.262+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:09.263+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.264+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.265+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_users where user_id=?
+2026-10-26T18:04:09.268+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.270+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:09.271+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.286+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:09.288+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.290+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.291+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_users where user_id=?
+2026-10-26T18:04:09.294+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#register(UserCredentialsRequest)
+2026-10-26T18:04:09.295+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UserCredentialsRequest[userID=reader1, password=secret]]
+2026-10-26T18:04:09.297+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select count(*) from app_users u1_0 where u1_0.user_id=?
+2026-10-26T18:04:09.474+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.476+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:09.478+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.479+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : Registered user account
+2026-10-26T18:04:09.480+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:09.480+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [UserResponse[userID=reader1, permissions=[NO_ACCESS]]]
+2026-10-26T18:04:09.484+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#logon(UserCredentialsRequest)
+2026-10-26T18:04:09.486+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [UserCredentialsRequest[userID=reader1, password=wrong]]
+2026-10-26T18:04:09.487+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0 where u1_0.user_id=?
+2026-10-26T18:04:09.489+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.665+02:00 DEBUG 20648 --- [    Test worker] .w.s.m.a.ResponseStatusExceptionResolver : Resolved [org.springframework.web.server.ResponseStatusException: 401 UNAUTHORIZED "Invalid credentials"]
+2026-10-26T18:04:09.677+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:09.678+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.680+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.681+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_users where user_id=?
+2026-10-26T18:04:09.684+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.686+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:09.687+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.698+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#removePermission(String, PermissionRequest)
+2026-10-26T18:04:09.714+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [PermissionRequest[permission=USER_ACCESS]]
+2026-10-26T18:04:09.717+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.721+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : Updated user permissions
+2026-10-26T18:04:09.726+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.728+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.732+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:09.733+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [UserResponse[userID=reader1, permissions=[NO_ACCESS]]]
+2026-10-26T18:04:09.748+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password from app_users u1_0
+2026-10-26T18:04:09.749+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select p1_0.user_id,p1_0.permission from app_user_permissions p1_0 where p1_0.user_id=?
+2026-10-26T18:04:09.750+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.751+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_users where user_id=?
+2026-10-26T18:04:09.754+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.756+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_users (password,user_id) values (?,?)
+2026-10-26T18:04:09.757+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.761+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.UserController#addPermission(String, PermissionRequest)
+2026-10-26T18:04:09.762+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [PermissionRequest[permission=USER_ACCESS]]
+2026-10-26T18:04:09.764+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select u1_0.user_id,u1_0.password,p1_0.user_id,p1_0.permission from app_users u1_0 left join app_user_permissions p1_0 on u1_0.user_id=p1_0.user_id where u1_0.user_id=?
+2026-10-26T18:04:09.765+02:00  INFO 20648 --- [    Test worker] c.togafmate.backend.service.UserService  : Updated user permissions
+2026-10-26T18:04:09.766+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from app_user_permissions where user_id=?
+2026-10-26T18:04:09.767+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into app_user_permissions (user_id,permission) values (?,?)
+2026-10-26T18:04:09.768+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:09.769+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [UserResponse[userID=reader1, permissions=[USER_ACCESS]]]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

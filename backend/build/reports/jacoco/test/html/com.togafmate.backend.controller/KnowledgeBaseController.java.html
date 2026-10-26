@@ -14,6 +14,7 @@ import com.togafmate.backend.service.KnowledgeBaseService;
 import com.togafmate.backend.entity.KnowledgeBase;
 import com.togafmate.backend.validate.KnowledgeBaseValidator;
 import org.springframework.web.server.ResponseStatusException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /** Exposes Knowledge Base metadata endpoints. */
 @RestController
@@ -24,28 +25,30 @@ public class KnowledgeBaseController {
 
     /** Creates the controller with its application service. */
     public KnowledgeBaseController(KnowledgeBaseService knowledgeBaseService,
-<span class="fc" id="L27">            KnowledgeBaseValidator knowledgeBaseValidator) {</span>
-<span class="fc" id="L28">        this.knowledgeBaseService = knowledgeBaseService;</span>
-<span class="fc" id="L29">        this.knowledgeBaseValidator = knowledgeBaseValidator;</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L28">            KnowledgeBaseValidator knowledgeBaseValidator) {</span>
+<span class="fc" id="L29">        this.knowledgeBaseService = knowledgeBaseService;</span>
+<span class="fc" id="L30">        this.knowledgeBaseValidator = knowledgeBaseValidator;</span>
+<span class="fc" id="L31">    }</span>
 
     /** Returns all registered Knowledge Bases. */
     @GetMapping
+    @SecurityRequirement(name = &quot;basicAuth&quot;)
     public List&lt;KnowledgeBaseResponse&gt; getKnowledgeBases() {
-<span class="fc" id="L35">        return knowledgeBaseService.findAll();</span>
+<span class="fc" id="L37">        return knowledgeBaseService.findAll();</span>
     }
 
     /** Validates and registers Knowledge Base metadata. */
     @PostMapping
+    @SecurityRequirement(name = &quot;basicAuth&quot;)
     public ResponseEntity&lt;KnowledgeBaseResponse&gt; createKnowledgeBase(@RequestBody KnowledgeBaseRequest request) {
-<span class="fc" id="L41">        KnowledgeBase knowledgeBase = new KnowledgeBase(request.title(), request.folderNameVersion(),</span>
-<span class="fc" id="L42">                request.version(), request.author(), request.emailAddress(), request.tableOfContents(),</span>
-<span class="fc" id="L43">                request.description(), request.contentType());</span>
-<span class="fc" id="L44">        List&lt;String&gt; errors = knowledgeBaseValidator.validate(knowledgeBase);</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (!errors.isEmpty()) {</span>
-<span class="fc" id="L46">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join(&quot;; &quot;, errors));</span>
+<span class="fc" id="L44">        KnowledgeBase knowledgeBase = new KnowledgeBase(request.title(), request.folderNameVersion(),</span>
+<span class="fc" id="L45">                request.version(), request.author(), request.emailAddress(), request.tableOfContents(),</span>
+<span class="fc" id="L46">                request.description(), request.contentType());</span>
+<span class="fc" id="L47">        List&lt;String&gt; errors = knowledgeBaseValidator.validate(knowledgeBase);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!errors.isEmpty()) {</span>
+<span class="fc" id="L49">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join(&quot;; &quot;, errors));</span>
         }
-<span class="fc" id="L48">        return ResponseEntity.status(HttpStatus.CREATED).body(knowledgeBaseService.save(knowledgeBase));</span>
+<span class="fc" id="L51">        return ResponseEntity.status(HttpStatus.CREATED).body(knowledgeBaseService.save(knowledgeBase));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

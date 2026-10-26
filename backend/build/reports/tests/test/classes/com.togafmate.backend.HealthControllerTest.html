@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">1.563s</div>
+<div class="counter">1.660s</div>
 <p>duration</p>
 </div>
 </td>
@@ -82,17 +82,17 @@
 </thead>
 <tr>
 <td class="success">should_allowAngularOrigin_whenBrowserSendsPreflightRequest()</td>
-<td class="success">0.869s</td>
+<td class="success">0.843s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">should_returnUpStatus_when_healthEndpointIsRequested()</td>
-<td class="success">0.027s</td>
+<td class="success">0.042s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">should_serveOpenApiDocument_whenApiDocsAreRequested()</td>
-<td class="success">0.667s</td>
+<td class="success">0.775s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -100,8 +100,8 @@
 <div id="tab1" class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>17:40:30.737 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.togafmate.backend.HealthControllerTest]: HealthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-17:40:31.149 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.togafmate.backend.TogafmateBackendApplication for test class com.togafmate.backend.HealthControllerTest
+<pre>18:03:49.690 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.togafmate.backend.HealthControllerTest]: HealthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:03:50.175 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.togafmate.backend.TogafmateBackendApplication for test class com.togafmate.backend.HealthControllerTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -111,38 +111,46 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.3)
 
-2026-10-26T17:40:32.368+02:00  INFO 20168 --- [    Test worker] c.t.backend.HealthControllerTest         : Starting HealthControllerTest using Java 21.0.9 with PID 20168 (started by nico in C:\Users\nico\Documents\Projects\TOGAFmate\backend)
-2026-10-26T17:40:32.372+02:00  INFO 20168 --- [    Test worker] c.t.backend.HealthControllerTest         : No active profile set, falling back to 1 default profile: &quot;default&quot;
-2026-10-26T17:40:32.373+02:00 DEBUG 20168 --- [    Test worker] o.s.boot.SpringApplication               : Loading source class com.togafmate.backend.TogafmateBackendApplication
-2026-10-26T17:40:32.438+02:00 DEBUG 20168 --- [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@166b11e
-2026-10-26T17:40:34.110+02:00  INFO 20168 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-10-26T17:40:34.150+02:00 DEBUG 20168 --- [    Test worker] o.s.b.a.AutoConfigurationPackages        : @EnableAutoConfiguration was declared on a class in the package 'com.togafmate.backend'. Automatic @Repository and @Entity scanning is enabled.
-2026-10-26T17:40:34.215+02:00  INFO 20168 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 86 ms. Found 1 JPA repository interface.
-2026-10-26T17:40:35.163+02:00  INFO 20168 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-10-26T17:40:35.313+02:00  INFO 20168 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
-2026-10-26T17:40:35.389+02:00  INFO 20168 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-10-26T17:40:36.080+02:00  INFO 20168 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-10-26T17:40:36.170+02:00  INFO 20168 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-10-26T17:40:36.849+02:00  INFO 20168 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:togafmate-test user=SA
-2026-10-26T17:40:36.853+02:00  INFO 20168 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-10-26T17:40:38.848+02:00  INFO 20168 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-10-26T17:40:38.880+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : drop table if exists knowledge_bases cascade 
-2026-10-26T17:40:38.902+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : create table knowledge_bases (id uuid not null, author varchar(255), content_type varchar(255) not null, description varchar(255), email_address varchar(255), folder_name_version varchar(255) not null unique, table_of_contents varchar(255), title varchar(255) not null, version varchar(255) not null, primary key (id))
-2026-10-26T17:40:38.921+02:00  INFO 20168 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-10-26T17:40:40.073+02:00  WARN 20168 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-10-26T17:40:40.272+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 9 mappings in 'requestMappingHandlerMapping'
-2026-10-26T17:40:40.499+02:00 DEBUG 20168 --- [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
-2026-10-26T17:40:40.568+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-10-26T17:40:40.656+02:00 DEBUG 20168 --- [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-10-26T17:40:40.974+02:00 DEBUG 20168 --- [    Test worker] o.s.b.w.s.ServletContextInitializerBeans : Mapping filters: characterEncodingFilter urls=[/*] order=-2147483648, formContentFilter urls=[/*] order=-9900, requestContextFilter urls=[/*] order=-105
-2026-10-26T17:40:40.974+02:00 DEBUG 20168 --- [    Test worker] o.s.b.w.s.ServletContextInitializerBeans : Mapping servlets: 
-2026-10-26T17:40:40.990+02:00 DEBUG 20168 --- [    Test worker] s.b.w.s.f.OrderedCharacterEncodingFilter : Filter 'characterEncodingFilter' configured for use
-2026-10-26T17:40:40.990+02:00 DEBUG 20168 --- [    Test worker] o.s.b.w.s.f.OrderedFormContentFilter     : Filter 'formContentFilter' configured for use
-2026-10-26T17:40:40.990+02:00 DEBUG 20168 --- [    Test worker] o.s.b.w.s.f.OrderedRequestContextFilter  : Filter 'requestContextFilter' configured for use
-2026-10-26T17:40:40.993+02:00  INFO 20168 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-10-26T17:40:40.993+02:00  INFO 20168 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-10-26T17:40:40.998+02:00  INFO 20168 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
-2026-10-26T17:40:41.046+02:00 DEBUG 20168 --- [    Test worker] .s.b.a.l.ConditionEvaluationReportLogger : 
+2026-10-26T18:03:51.765+02:00  INFO 20648 --- [    Test worker] c.t.backend.HealthControllerTest         : Starting HealthControllerTest using Java 21.0.9 with PID 20648 (started by nico in C:\Users\nico\Documents\Projects\TOGAFmate\backend)
+2026-10-26T18:03:51.767+02:00  INFO 20648 --- [    Test worker] c.t.backend.HealthControllerTest         : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2026-10-26T18:03:51.768+02:00 DEBUG 20648 --- [    Test worker] o.s.boot.SpringApplication               : Loading source class com.togafmate.backend.TogafmateBackendApplication
+2026-10-26T18:03:51.859+02:00 DEBUG 20648 --- [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@1de5cc88
+2026-10-26T18:03:54.101+02:00  INFO 20648 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-26T18:03:54.157+02:00 DEBUG 20648 --- [    Test worker] o.s.b.a.AutoConfigurationPackages        : @EnableAutoConfiguration was declared on a class in the package 'com.togafmate.backend'. Automatic @Repository and @Entity scanning is enabled.
+2026-10-26T18:03:54.231+02:00  INFO 20648 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 103 ms. Found 2 JPA repository interfaces.
+2026-10-26T18:03:55.414+02:00  INFO 20648 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-26T18:03:55.576+02:00  INFO 20648 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-10-26T18:03:55.672+02:00  INFO 20648 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-26T18:03:56.419+02:00  INFO 20648 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-26T18:03:56.508+02:00  INFO 20648 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-26T18:03:57.268+02:00  INFO 20648 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:togafmate-test user=SA
+2026-10-26T18:03:57.273+02:00  INFO 20648 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-26T18:03:59.688+02:00  INFO 20648 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-26T18:03:59.719+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : drop table if exists app_user_permissions cascade 
+2026-10-26T18:03:59.727+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : drop table if exists app_users cascade 
+2026-10-26T18:03:59.728+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : drop table if exists knowledge_bases cascade 
+2026-10-26T18:03:59.737+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : create table app_user_permissions (permission varchar(32) not null check (permission in ('USER_ACCESS','ADMINISTRATOR_ACCESS','NO_ACCESS')), user_id varchar(255) not null)
+2026-10-26T18:03:59.753+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : create table app_users (password varchar(255) not null, user_id varchar(255) not null, primary key (user_id))
+2026-10-26T18:03:59.758+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : create table knowledge_bases (id uuid not null, author varchar(255), content_type varchar(255) not null, description varchar(255), email_address varchar(255), folder_name_version varchar(255) not null unique, table_of_contents varchar(255), title varchar(255) not null, version varchar(255) not null, primary key (id))
+2026-10-26T18:03:59.761+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : alter table if exists app_user_permissions add constraint FKrceawvy9cpuwixnstpdvcl401 foreign key (user_id) references app_users
+2026-10-26T18:03:59.785+02:00  INFO 20648 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-26T18:04:00.322+02:00  INFO 20648 --- [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-26T18:04:01.950+02:00  WARN 20648 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-26T18:04:02.462+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 13 mappings in 'requestMappingHandlerMapping'
+2026-10-26T18:04:02.741+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2026-10-26T18:04:02.815+02:00  INFO 20648 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4757731c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@340ae49e, org.springframework.security.web.context.SecurityContextHolderFilter@5d4f92a, org.springframework.security.web.header.HeaderWriterFilter@50c07d65, org.springframework.web.filter.CorsFilter@7befbc36, org.springframework.security.web.authentication.logout.LogoutFilter@5009e592, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@411675ac, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@336cc9db, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@c49343, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3b40d22d, org.springframework.security.web.session.SessionManagementFilter@bcfebfe, org.springframework.security.web.access.ExceptionTranslationFilter@52e9e960, org.springframework.security.web.access.intercept.AuthorizationFilter@7460e9c9]
+2026-10-26T18:04:03.186+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-10-26T18:04:03.277+02:00 DEBUG 20648 --- [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-10-26T18:04:03.727+02:00 DEBUG 20648 --- [    Test worker] o.s.b.w.s.ServletContextInitializerBeans : Mapping filters: springSecurityFilterChain urls=[/*] order=-100, characterEncodingFilter urls=[/*] order=-2147483648, formContentFilter urls=[/*] order=-9900, requestContextFilter urls=[/*] order=-105
+2026-10-26T18:04:03.727+02:00 DEBUG 20648 --- [    Test worker] o.s.b.w.s.ServletContextInitializerBeans : Mapping servlets: 
+2026-10-26T18:04:03.764+02:00 DEBUG 20648 --- [    Test worker] s.b.w.s.f.OrderedCharacterEncodingFilter : Filter 'characterEncodingFilter' configured for use
+2026-10-26T18:04:03.765+02:00 DEBUG 20648 --- [    Test worker] o.s.b.w.s.f.OrderedFormContentFilter     : Filter 'formContentFilter' configured for use
+2026-10-26T18:04:03.765+02:00 DEBUG 20648 --- [    Test worker] o.s.b.w.s.f.OrderedRequestContextFilter  : Filter 'requestContextFilter' configured for use
+2026-10-26T18:04:03.765+02:00 DEBUG 20648 --- [    Test worker] .DelegatingFilterProxyRegistrationBean$1 : Filter 'springSecurityFilterChain' configured for use
+2026-10-26T18:04:03.768+02:00  INFO 20648 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-26T18:04:03.769+02:00  INFO 20648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T18:04:03.771+02:00  INFO 20648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-26T18:04:03.833+02:00 DEBUG 20648 --- [    Test worker] .s.b.a.l.ConditionEvaluationReportLogger : 
 
 
 ============================
@@ -349,6 +357,12 @@ Positive matches:
    MockMvcAutoConfiguration#mockMvcBuilder matched:
       - @ConditionalOnMissingBean (types: org.springframework.test.web.servlet.MockMvcBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
 
+   MockMvcSecurityConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors' (OnClassCondition)
+
+   MockMvcSecurityConfiguration#securityMockMvcBuilderCustomizer matched:
+      - @ConditionalOnBean (names: springSecurityFilterChain; SearchStrategy: all) found bean 'springSecurityFilterChain' (OnBeanCondition)
+
    MultipartAutoConfiguration matched:
       - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.springframework.web.multipart.support.StandardServletMultipartResolver', 'jakarta.servlet.MultipartConfigElement' (OnClassCondition)
       - found 'session' scope (OnWebApplicationCondition)
@@ -399,6 +413,19 @@ Positive matches:
    RestTemplateAutoConfiguration#restTemplateBuilder matched:
       - @ConditionalOnMissingBean (types: org.springframework.boot.web.client.RestTemplateBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
 
+   SecurityAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.authentication.DefaultAuthenticationEventPublisher' (OnClassCondition)
+
+   SecurityAutoConfiguration#authenticationEventPublisher matched:
+      - @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationEventPublisher; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SecurityFilterAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer', 'org.springframework.security.config.http.SessionCreationPolicy' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   SecurityFilterAutoConfiguration#securityFilterChainRegistration matched:
+      - @ConditionalOnBean (names: springSecurityFilterChain; SearchStrategy: all) found bean 'springSecurityFilterChain' (OnBeanCondition)
+
    ServletWebServerFactoryAutoConfiguration matched:
       - @ConditionalOnClass found required class 'jakarta.servlet.ServletRequest' (OnClassCondition)
       - found 'session' scope (OnWebApplicationCondition)
@@ -412,6 +439,13 @@ Positive matches:
 
    SimpleCacheConfiguration matched:
       - Cache org.springframework.boot.autoconfigure.cache.SimpleCacheConfiguration automatic cache type (CacheCondition)
+
+   SpringBootWebSecurityConfiguration matched:
+      - found 'session' scope (OnWebApplicationCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
 
    SpringDataWebAutoConfiguration matched:
       - @ConditionalOnClass found required classes 'org.springframework.data.web.PageableHandlerMethodArgumentResolver', 'org.springframework.web.servlet.config.annotation.WebMvcConfigurer' (OnClassCondition)
@@ -497,6 +531,15 @@ Positive matches:
    SpringDocPageableConfiguration#pageableOpenAPIConverter matched:
       - @ConditionalOnProperty (springdoc.model-converters.pageable-converter.enabled) matched (OnPropertyCondition)
       - @ConditionalOnMissingBean (types: org.springdoc.core.converters.PageableOpenAPIConverter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SpringDocSecurityConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.web.SecurityFilterChain' (OnClassCondition)
+      - @ConditionalOnWebApplication (required) found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnExpression (#{${springdoc.api-docs.enabled:true} and ${springdoc.enable-spring-security:true}}) resulted in true (OnExpressionCondition)
+      - @ConditionalOnBean (types: org.springdoc.core.configuration.SpringDocConfiguration; SearchStrategy: all) found bean 'org.springdoc.core.configuration.SpringDocConfiguration' (OnBeanCondition)
+
+   SpringDocSecurityConfiguration.SpringSecurityLoginEndpointConfiguration matched:
+      - @ConditionalOnClass found required class 'jakarta.servlet.Filter' (OnClassCondition)
 
    SpringDocSortConfiguration matched:
       - @ConditionalOnClass found required class 'org.springframework.data.domain.Sort' (OnClassCondition)
@@ -1038,10 +1081,6 @@ Negative matches:
       Did not match:
          - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.function.client.WebClient' (OnClassCondition)
 
-   MockMvcSecurityConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors' (OnClassCondition)
-
    MockMvcWebClientAutoConfiguration:
       Did not match:
          - @ConditionalOnClass did not find required class 'com.gargoylesoftware.htmlunit.WebClient' (OnClassCondition)
@@ -1124,7 +1163,7 @@ Negative matches:
 
    OAuth2ClientAutoConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.client.registration.ClientRegistration' (OnClassCondition)
 
    OAuth2ResourceServerAutoConfiguration:
       Did not match:
@@ -1216,7 +1255,7 @@ Negative matches:
 
    ReactiveOAuth2ResourceServerAutoConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity' (OnClassCondition)
+         - @ConditionalOnWebApplication did not find reactive web application classes (OnWebApplicationCondition)
 
    ReactiveSecurityAutoConfiguration:
       Did not match:
@@ -1224,7 +1263,10 @@ Negative matches:
 
    ReactiveUserDetailsServiceAutoConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.authentication.ReactiveAuthenticationManager' (OnClassCondition)
+         - AnyNestedCondition 0 matched 2 did not; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication.ReactiveWebApplicationCondition did not find reactive web application classes; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication.RSocketSecurityEnabledCondition @ConditionalOnBean (types: org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler; SearchStrategy: all) did not find any beans of type org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler (ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.authentication.ReactiveAuthenticationManager' (OnClassCondition)
+         - AnyNestedCondition 1 matched 2 did not; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'password'; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'name'; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector' (ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
 
    ReactiveWebServerFactoryAutoConfiguration:
       Did not match:
@@ -1258,13 +1300,9 @@ Negative matches:
       Did not match:
          - @ConditionalOnClass did not find required class 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (OnClassCondition)
 
-   SecurityAutoConfiguration:
+   SecurityDataConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.authentication.DefaultAuthenticationEventPublisher' (OnClassCondition)
-
-   SecurityFilterAutoConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.config.http.SessionCreationPolicy' (OnClassCondition)
+         - @ConditionalOnClass did not find required class 'org.springframework.security.data.repository.query.SecurityEvaluationContextExtension' (OnClassCondition)
 
    SendGridAutoConfiguration:
       Did not match:
@@ -1289,6 +1327,10 @@ Negative matches:
    SpringApplicationAdminJmxAutoConfiguration:
       Did not match:
          - @ConditionalOnProperty (spring.application.admin.enabled=true) did not find property 'enabled' (OnPropertyCondition)
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' securityFilterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
 
    SpringDocConfiguration#propertiesResolverForSchema:
       Did not match:
@@ -1352,9 +1394,13 @@ Negative matches:
       Did not match:
          - @ConditionalOnClass did not find required class 'kotlinx.coroutines.flow.Flow' (OnClassCondition)
 
-   SpringDocSecurityConfiguration:
+   SpringDocSecurityConfiguration.SpringDocSecurityOAuth2Configuration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.web.SecurityFilterChain' (OnClassCondition)
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService' (OnClassCondition)
+
+   SpringDocSecurityConfiguration.SpringSecurityLoginEndpointConfiguration#springSecurityLoginEndpointCustomiser:
+      Did not match:
+         - @ConditionalOnProperty (springdoc.show-login-endpoint) did not find property 'springdoc.show-login-endpoint' (OnPropertyCondition)
 
    SpringDocSortConfiguration#delegatingMethodParameterCustomizer:
       Did not match:
@@ -1418,7 +1464,10 @@ Negative matches:
 
    UserDetailsServiceAutoConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.security.authentication.AuthenticationManager' (OnClassCondition)
+         - @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationManager,org.springframework.security.authentication.AuthenticationProvider,org.springframework.security.core.userdetails.UserDetailsService,org.springframework.security.authentication.AuthenticationManagerResolver,org.springframework.security.oauth2.jwt.JwtDecoder; SearchStrategy: all) found beans of type 'org.springframework.security.core.userdetails.UserDetailsService' userDetailsService (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.authentication.AuthenticationManager' (OnClassCondition)
+         - AnyNestedCondition 1 matched 2 did not; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'password'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'name'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector', 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
 
    ValidationAutoConfiguration:
       Did not match:
@@ -1512,18 +1561,17 @@ Unconditional classes:
 
 
 
-2026-10-26T17:40:41.184+02:00  INFO 20168 --- [    Test worker] c.t.backend.HealthControllerTest         : Started HealthControllerTest in 9.539 seconds (process running for 12.938)
-2026-10-26T17:40:41.186+02:00 DEBUG 20168 --- [    Test worker] o.s.b.a.ApplicationAvailabilityBean      : Application availability state LivenessState changed to CORRECT
-2026-10-26T17:40:41.190+02:00 DEBUG 20168 --- [    Test worker] o.s.b.a.ApplicationAvailabilityBean      : Application availability state ReadinessState changed to ACCEPTING_TRAFFIC
-2026-10-26T17:40:42.033+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.HealthController#getHealth()
-2026-10-26T17:40:42.094+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
-2026-10-26T17:40:42.616+02:00  INFO 20168 --- [    Test worker] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 458 ms
-2026-10-26T17:40:42.676+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json]
-2026-10-26T17:40:42.678+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
-2026-10-26T17:40:42.762+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.HealthController#getHealth()
-2026-10-26T17:40:42.763+02:00  INFO 20168 --- [    Test worker] com.togafmate.backend.HealthController   : Backend health check completed with status UP
-2026-10-26T17:40:42.764+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2026-10-26T17:40:42.764+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [{status=UP}]
+2026-10-26T18:04:03.913+02:00  INFO 20648 --- [    Test worker] c.t.backend.HealthControllerTest         : Started HealthControllerTest in 13.16 seconds (process running for 17.261)
+2026-10-26T18:04:03.915+02:00 DEBUG 20648 --- [    Test worker] o.s.b.a.ApplicationAvailabilityBean      : Application availability state LivenessState changed to CORRECT
+2026-10-26T18:04:03.921+02:00 DEBUG 20648 --- [    Test worker] o.s.b.a.ApplicationAvailabilityBean      : Application availability state ReadinessState changed to ACCEPTING_TRAFFIC
+2026-10-26T18:04:04.809+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+2026-10-26T18:04:05.365+02:00  INFO 20648 --- [    Test worker] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 495 ms
+2026-10-26T18:04:05.437+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json]
+2026-10-26T18:04:05.441+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+2026-10-26T18:04:05.570+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.HealthController#getHealth()
+2026-10-26T18:04:05.570+02:00  INFO 20648 --- [    Test worker] com.togafmate.backend.HealthController   : Backend health check completed with status UP
+2026-10-26T18:04:05.572+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:05.573+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [{status=UP}]
 </pre>
 </span>
 </div>
@@ -1545,7 +1593,7 @@ WARNING: Dynamic loading of agents will be disallowed by default in a future rel
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 8.7</a> at 26 Oct 2026, 17:40:45</p>
+<a href="http://www.gradle.org">Gradle 8.7</a> at 26 Oct 2026, 18:04:11</p>
 </div>
 </div>
 </body>

@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.654s</div>
+<div class="counter">1.291s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,22 +79,22 @@
 </thead>
 <tr>
 <td class="success">should_rejectInvalidKnowledgeBase_beforeCallingService_whenMetadataIsInvalid()</td>
-<td class="success">0.138s</td>
+<td class="success">0.335s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">should_returnEmptyList_whenNoKnowledgeBasesExist()</td>
-<td class="success">0.012s</td>
+<td class="success">0.025s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">should_returnStoredKnowledgeBase_whenKnowledgeBaseExists()</td>
-<td class="success">0.055s</td>
+<td class="success">0.109s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">should_validateThenCreateKnowledgeBase_whenMetadataIsValid()</td>
-<td class="success">0.449s</td>
+<td class="success">0.822s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -102,40 +102,40 @@
 <div id="tab1" class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-10-26T17:40:42.792+02:00 DEBUG 20168 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Neither @ContextConfiguration nor @ContextHierarchy found for test class [KnowledgeBaseControllerTest]: using SpringBootContextLoader
-2026-10-26T17:40:42.793+02:00  INFO 20168 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.togafmate.backend.controller.KnowledgeBaseControllerTest]: KnowledgeBaseControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-10-26T17:40:42.794+02:00 DEBUG 20168 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizerFactory implementations for test class [KnowledgeBaseControllerTest]: [OverrideAutoConfigurationContextCustomizerFactory, ObservabilityContextCustomizerFactory, TypeExcludeFiltersContextCustomizerFactory, PropertyMappingContextCustomizerFactory, WebDriverContextCustomizerFactory, ImportsContextCustomizerFactory, ExcludeFilterContextCustomizerFactory, HttpGraphQlTesterContextCustomizerFactory, DuplicateJsonObjectContextCustomizerFactory, MockitoContextCustomizerFactory, TestRestTemplateContextCustomizerFactory, WebTestClientContextCustomizerFactory, MockServerContainerContextCustomizerFactory, DynamicPropertiesContextCustomizerFactory]
-2026-10-26T17:40:42.797+02:00 DEBUG 20168 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizers for test class [KnowledgeBaseControllerTest]: [DisableObservabilityContextCustomizer, PropertyMappingContextCustomizer, WebDriverContextCustomizer, ImportsContextCustomizer, ExcludeFilterContextCustomizer, DuplicateJsonObjectContextCustomizer, MockitoContextCustomizer, TestRestTemplateContextCustomizer]
-2026-10-26T17:40:42.809+02:00  INFO 20168 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.togafmate.backend.TogafmateBackendApplication for test class com.togafmate.backend.controller.KnowledgeBaseControllerTest
-2026-10-26T17:40:42.812+02:00 DEBUG 20168 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using TestExecutionListeners for test class [KnowledgeBaseControllerTest]: [ServletTestExecutionListener, DirtiesContextBeforeModesTestExecutionListener, ApplicationEventsTestExecutionListener, MockitoTestExecutionListener, DependencyInjectionTestExecutionListener, DirtiesContextTestExecutionListener, TransactionalTestExecutionListener, SqlScriptsTestExecutionListener, EventPublishingTestExecutionListener, RestDocsTestExecutionListener, MockRestServiceServerResetTestExecutionListener, MockMvcPrintOnlyOnFailureTestExecutionListener, WebDriverTestExecutionListener, MockWebServiceServerTestExecutionListener, ResetMocksTestExecutionListener]
-2026-10-26T17:40:43.045+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.092+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#createKnowledgeBase(KnowledgeBaseRequest)
-2026-10-26T17:40:43.124+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read &quot;application/json;charset=UTF-8&quot; to [KnowledgeBaseRequest[title=Architecture, folderNameVersion=Architecture_Guide_v1.0, version=1.0, aut (truncated)...]
-2026-10-26T17:40:43.167+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id from knowledge_bases kb1_0 where kb1_0.folder_name_version=? fetch first ? rows only
-2026-10-26T17:40:43.228+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : insert into knowledge_bases (author,content_type,description,email_address,folder_name_version,table_of_contents,title,version,id) values (?,?,?,?,?,?,?,?,?)
-2026-10-26T17:40:43.248+02:00  INFO 20168 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Registered Knowledge Base Architecture version 1.0
-2026-10-26T17:40:43.253+02:00 DEBUG 20168 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2026-10-26T17:40:43.262+02:00 DEBUG 20168 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [KnowledgeBaseResponse[id=ca8d517b-8be3-4a58-a171-c311afe30520, title=Architecture, version=1.0, desc (truncated)...]
-2026-10-26T17:40:43.270+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.299+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : delete from knowledge_bases where id=?
-2026-10-26T17:40:43.305+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : insert into knowledge_bases (author,content_type,description,email_address,folder_name_version,table_of_contents,title,version,id) values (?,?,?,?,?,?,?,?,?)
-2026-10-26T17:40:43.307+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#getKnowledgeBases()
-2026-10-26T17:40:43.312+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.314+02:00  INFO 20168 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Retrieved 1 Knowledge Bases
-2026-10-26T17:40:43.316+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2026-10-26T17:40:43.316+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [[KnowledgeBaseResponse[id=d4dbf359-b02c-4f00-a325-4728550c6bfb, title=Architecture, version=1.0, des (truncated)...]
-2026-10-26T17:40:43.327+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.328+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : delete from knowledge_bases where id=?
-2026-10-26T17:40:43.331+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#createKnowledgeBase(KnowledgeBaseRequest)
-2026-10-26T17:40:43.332+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read &quot;application/json;charset=UTF-8&quot; to [KnowledgeBaseRequest[title= , folderNameVersion=../outside, version=1.0, author=null, emailAddress=n (truncated)...]
-2026-10-26T17:40:43.338+02:00 DEBUG 20168 --- [    Test worker] .w.s.m.a.ResponseStatusExceptionResolver : Resolved [org.springframework.web.server.ResponseStatusException: 400 BAD_REQUEST &quot;title is required; folder_name_version is invalid&quot;]
-2026-10-26T17:40:43.341+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.466+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.468+02:00 DEBUG 20168 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#getKnowledgeBases()
-2026-10-26T17:40:43.470+02:00 DEBUG 20168 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
-2026-10-26T17:40:43.471+02:00  INFO 20168 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Retrieved 0 Knowledge Bases
-2026-10-26T17:40:43.472+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2026-10-26T17:40:43.472+02:00 DEBUG 20168 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [[]]
+<pre>2026-10-26T18:04:06.575+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Neither @ContextConfiguration nor @ContextHierarchy found for test class [KnowledgeBaseControllerTest]: using SpringBootContextLoader
+2026-10-26T18:04:06.581+02:00  INFO 20648 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.togafmate.backend.controller.KnowledgeBaseControllerTest]: KnowledgeBaseControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T18:04:06.585+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizerFactory implementations for test class [KnowledgeBaseControllerTest]: [OverrideAutoConfigurationContextCustomizerFactory, ObservabilityContextCustomizerFactory, TypeExcludeFiltersContextCustomizerFactory, PropertyMappingContextCustomizerFactory, WebDriverContextCustomizerFactory, ImportsContextCustomizerFactory, ExcludeFilterContextCustomizerFactory, HttpGraphQlTesterContextCustomizerFactory, DuplicateJsonObjectContextCustomizerFactory, MockitoContextCustomizerFactory, TestRestTemplateContextCustomizerFactory, WebTestClientContextCustomizerFactory, MockServerContainerContextCustomizerFactory, DynamicPropertiesContextCustomizerFactory]
+2026-10-26T18:04:06.596+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using ContextCustomizers for test class [KnowledgeBaseControllerTest]: [DisableObservabilityContextCustomizer, PropertyMappingContextCustomizer, WebDriverContextCustomizer, ImportsContextCustomizer, ExcludeFilterContextCustomizer, DuplicateJsonObjectContextCustomizer, MockitoContextCustomizer, TestRestTemplateContextCustomizer]
+2026-10-26T18:04:06.625+02:00  INFO 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.togafmate.backend.TogafmateBackendApplication for test class com.togafmate.backend.controller.KnowledgeBaseControllerTest
+2026-10-26T18:04:06.630+02:00 DEBUG 20648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Using TestExecutionListeners for test class [KnowledgeBaseControllerTest]: [ServletTestExecutionListener, DirtiesContextBeforeModesTestExecutionListener, ApplicationEventsTestExecutionListener, MockitoTestExecutionListener, DependencyInjectionTestExecutionListener, DirtiesContextTestExecutionListener, TransactionalTestExecutionListener, SqlScriptsTestExecutionListener, WithSecurityContextTestExecutionListener, EventPublishingTestExecutionListener, ReactorContextTestExecutionListener, RestDocsTestExecutionListener, MockRestServiceServerResetTestExecutionListener, MockMvcPrintOnlyOnFailureTestExecutionListener, WebDriverTestExecutionListener, MockWebServiceServerTestExecutionListener, ResetMocksTestExecutionListener]
+2026-10-26T18:04:07.013+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.118+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#createKnowledgeBase(KnowledgeBaseRequest)
+2026-10-26T18:04:07.197+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read &quot;application/json;charset=UTF-8&quot; to [KnowledgeBaseRequest[title=Architecture, folderNameVersion=Architecture_Guide_v1.0, version=1.0, aut (truncated)...]
+2026-10-26T18:04:07.263+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id from knowledge_bases kb1_0 where kb1_0.folder_name_version=? fetch first ? rows only
+2026-10-26T18:04:07.391+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into knowledge_bases (author,content_type,description,email_address,folder_name_version,table_of_contents,title,version,id) values (?,?,?,?,?,?,?,?,?)
+2026-10-26T18:04:07.425+02:00  INFO 20648 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Registered Knowledge Base Architecture version 1.0
+2026-10-26T18:04:07.435+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:07.452+02:00 DEBUG 20648 --- [    Test worker] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [KnowledgeBaseResponse[id=f13fcfab-fbc6-4637-9a22-daf231688c17, title=Architecture, version=1.0, desc (truncated)...]
+2026-10-26T18:04:07.474+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.525+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from knowledge_bases where id=?
+2026-10-26T18:04:07.535+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : insert into knowledge_bases (author,content_type,description,email_address,folder_name_version,table_of_contents,title,version,id) values (?,?,?,?,?,?,?,?,?)
+2026-10-26T18:04:07.540+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#getKnowledgeBases()
+2026-10-26T18:04:07.550+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.554+02:00  INFO 20648 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Retrieved 1 Knowledge Bases
+2026-10-26T18:04:07.558+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:07.559+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [[KnowledgeBaseResponse[id=1153af61-f3a2-465f-b0b1-c3dbe09021ec, title=Architecture, version=1.0, des (truncated)...]
+2026-10-26T18:04:07.585+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.587+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : delete from knowledge_bases where id=?
+2026-10-26T18:04:07.592+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#createKnowledgeBase(KnowledgeBaseRequest)
+2026-10-26T18:04:07.593+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Read &quot;application/json;charset=UTF-8&quot; to [KnowledgeBaseRequest[title= , folderNameVersion=../outside, version=1.0, author=null, emailAddress=n (truncated)...]
+2026-10-26T18:04:07.600+02:00 DEBUG 20648 --- [    Test worker] .w.s.m.a.ResponseStatusExceptionResolver : Resolved [org.springframework.web.server.ResponseStatusException: 400 BAD_REQUEST &quot;title is required; folder_name_version is invalid&quot;]
+2026-10-26T18:04:07.605+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.922+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.926+02:00 DEBUG 20648 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.togafmate.backend.controller.KnowledgeBaseController#getKnowledgeBases()
+2026-10-26T18:04:07.929+02:00 DEBUG 20648 --- [    Test worker] org.hibernate.SQL                        : select kb1_0.id,kb1_0.author,kb1_0.content_type,kb1_0.description,kb1_0.email_address,kb1_0.folder_name_version,kb1_0.table_of_contents,kb1_0.title,kb1_0.version from knowledge_bases kb1_0
+2026-10-26T18:04:07.931+02:00  INFO 20648 --- [    Test worker] c.t.b.service.KnowledgeBaseService       : Retrieved 0 Knowledge Bases
+2026-10-26T18:04:07.932+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-10-26T18:04:07.932+02:00 DEBUG 20648 --- [    Test worker] m.m.a.RequestResponseBodyMethodProcessor : Writing [[]]
 </pre>
 </span>
 </div>
@@ -147,7 +147,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 8.7</a> at 26 Oct 2026, 17:40:45</p>
+<a href="http://www.gradle.org">Gradle 8.7</a> at 26 Oct 2026, 18:04:11</p>
 </div>
 </div>
 </body>

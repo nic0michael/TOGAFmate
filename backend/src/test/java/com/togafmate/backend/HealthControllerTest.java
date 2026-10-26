@@ -29,16 +29,21 @@ class HealthControllerTest {
     void should_serveOpenApiDocument_whenApiDocsAreRequested() throws Exception {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.info.title").value("TOGAFmate Backend API"));
+                .andExpect(jsonPath("$.info.title").value("TOGAFmate Backend API"))
+                .andExpect(jsonPath("$.components.securitySchemes.basicAuth.scheme").value("basic"));
     }
 
     @Test
     void should_allowAngularOrigin_whenBrowserSendsPreflightRequest() throws Exception {
         mockMvc.perform(options("/api/health")
                         .header("Origin", "http://localhost:4200")
-                        .header("Access-Control-Request-Method", "GET"))
+                        .header("Access-Control-Request-Method", "GET")
+                        .header("Access-Control-Request-Headers", "authorization,content-type"))
                 .andExpect(status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
-                        .header().string("Access-Control-Allow-Origin", "http://localhost:4200"));
+                        .header().string("Access-Control-Allow-Origin", "http://localhost:4200"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("Access-Control-Allow-Headers",
+                                org.hamcrest.Matchers.containsStringIgnoringCase("authorization")));
     }
 }

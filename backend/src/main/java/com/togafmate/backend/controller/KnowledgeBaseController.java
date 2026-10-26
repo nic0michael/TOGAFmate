@@ -14,6 +14,7 @@ import com.togafmate.backend.service.KnowledgeBaseService;
 import com.togafmate.backend.entity.KnowledgeBase;
 import com.togafmate.backend.validate.KnowledgeBaseValidator;
 import org.springframework.web.server.ResponseStatusException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /** Exposes Knowledge Base metadata endpoints. */
 @RestController
@@ -31,12 +32,14 @@ public class KnowledgeBaseController {
 
     /** Returns all registered Knowledge Bases. */
     @GetMapping
+    @SecurityRequirement(name = "basicAuth")
     public List<KnowledgeBaseResponse> getKnowledgeBases() {
         return knowledgeBaseService.findAll();
     }
 
     /** Validates and registers Knowledge Base metadata. */
     @PostMapping
+    @SecurityRequirement(name = "basicAuth")
     public ResponseEntity<KnowledgeBaseResponse> createKnowledgeBase(@RequestBody KnowledgeBaseRequest request) {
         KnowledgeBase knowledgeBase = new KnowledgeBase(request.title(), request.folderNameVersion(),
                 request.version(), request.author(), request.emailAddress(), request.tableOfContents(),
