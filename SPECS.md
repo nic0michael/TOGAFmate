@@ -263,6 +263,31 @@ The configured storage root is controlled by the server and cannot be overridden
 
 The user journeys describe the intended frontend experience. Upload, document retrieval, replacement, and removal require corresponding backend API operations before those steps can work end to end.
 
+### 4.8 Container Build and Release Stages
+
+Containerisation will be delivered in two stages.
+
+#### Stage 1: Build and publish application images
+
+- Build and publish separate frontend and backend images. Each application image must have its own Dockerfile in its application directory: `frontend/Dockerfile` and `backend/Dockerfile`.
+- Build the Angular frontend with Node.js and serve its production files from an Alpine-based runtime image.
+- Build and run the Java backend on Ubuntu 24.04 LTS with Java 21.
+- Label and publish the first-stage images with version `1.0`, using separate Docker Hub repositories, for example `<namespace>/togafmate-frontend:1.0` and `<namespace>/togafmate-backend:1.0`.
+- The project maintainer builds and publishes the images to Docker Hub. Application secrets must not be included in either image.
+- Stage 1 does not provide a Compose deployment or a PostgreSQL container. The backend requires its database connection and bootstrap administrator configuration through runtime environment variables when run.
+- The frontend image must serve the Angular single-page application and forward `/api` requests to the backend service named `backend` on port `8080`, ready for the shared network defined in Stage 2.
+
+#### Stage 2: Compose deployment
+
+- Add a root-level `compose.yaml` to run the frontend, backend, and PostgreSQL as separate services.
+- Connect the services on a shared Docker network. The frontend must be able to reach the backend by the service name `backend`; the backend must reach PostgreSQL by its Compose service name.
+- Use the official PostgreSQL image and pin it to a supported major version. Do not use the floating `latest` tag for deployments.
+- Persist PostgreSQL data in a volume separate from persistent Knowledge Base file storage.
+- Provide deployment-specific secrets and configuration at runtime. A local `.env` file may supply Compose variables but must be excluded from version control and must not be copied into application images. Commit a `.env.example` containing variable names and placeholders only. Production deployments should inject secrets through the deployment environment or a secrets manager.
+- Production access must use HTTPS for frontend and API traffic, with TLS provided by the deployment's HTTPS entry point. Docker or Compose alone does not enable TLS.
+
+Stage 2 Compose configuration, PostgreSQL image version, persistent volumes, and runtime secret delivery are not part of Stage 1 image publishing.
+
 ---
 
 ## 5. Technology Stack

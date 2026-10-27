@@ -66,6 +66,27 @@ New users are created through `POST /api/users/register` (see **Try the API in S
 
 For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
+### Stage 1: Build and publish Docker images
+
+Stage 1 provides separate Docker images for the frontend and backend. The frontend image builds Angular and serves the compiled app from an Alpine-based Nginx image. Its `/api` requests are proxied to a backend container named `backend`. The backend image builds the Spring Boot application and runs it on Ubuntu 24.04 with Java 21. PostgreSQL and the shared application network are part of Stage 2; the backend image needs a PostgreSQL connection supplied when it is run.
+
+Install Docker Desktop or Docker Engine and sign in to Docker Hub:
+
+```shell
+docker login
+```
+
+Replace `<dockerhub-namespace>` with your Docker Hub username or organization, then build and publish both images from the repository root:
+
+```shell
+docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-frontend:1.0 ./frontend
+docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-backend:1.0 ./backend
+docker push <dockerhub-namespace>/togafmate-frontend:1.0
+docker push <dockerhub-namespace>/togafmate-backend:1.0
+```
+
+The frontend container listens on port `8080`. Its Nginx configuration expects the backend to be reachable as `backend:8080` on a shared container network. The backend listens on port `8080` and reads PostgreSQL and bootstrap administrator settings from the environment. Do not put secrets into either image. Compose orchestration, PostgreSQL, persistent volumes, and HTTPS termination are deferred to Stage 2.
+
 The default PostgreSQL connection is `jdbc:postgresql://localhost:5432/togafmate` with user `postgres` and an empty password. Set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` before starting to use different connection values. The API starts at `http://localhost:8080`.
 
 ### Try the API in Swagger
@@ -105,7 +126,7 @@ flowchart LR
     Backend -->|Document storage| Files[Persistent filesystem]
 ```
 
-The repository contains the Angular frontend and Spring Boot backend. Knowledge Base file import and retrieval, persistent document storage, and Docker deployment are planned components described in `SPECS.md`.
+The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing the separate application images. Compose orchestration, PostgreSQL container configuration, persistent volumes, HTTPS deployment, Knowledge Base file import, and document retrieval remain planned work described in `SPECS.md`.
 
 ## Technology
 
