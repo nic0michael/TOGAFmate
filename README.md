@@ -1,6 +1,6 @@
 # TOGAFmate
 
-TOGAFmate is a web application for managing and reading collections of Knowledge Base documents. The project specifications and detailed product requirements are in [SPECS.md](SPECS.md). This README describes the current architecture and implementation, and explains how to run and test the backend.
+TOGAFmate is a web application for managing and reading collections of Knowledge Base documents. The project specifications and detailed product requirements are in [SPECS.md](SPECS.md). This README describes the current implementation and explains how to run and test the application.
 
 ## Quick Start
 
@@ -37,11 +37,34 @@ cd backend
 
 ### Run the frontend
 
-The Angular frontend is planned for the `frontend/` directory but has not been created yet, so there are currently no frontend startup commands. Once implemented, its Quick Start instructions will be added here. The intended local setup is to run the frontend development server alongside the API; the API allows the Angular development origin `http://localhost:4200` by default.
+Install Node.js 24. From the repository root, open a second terminal while the API is running. On Windows PowerShell:
 
-The frontend is intended to let users sign in with their user ID and password, browse Knowledge Bases, and read their content according to their permissions. Administrators will have additional Knowledge Base and user-permission management pages. The current API does not yet provide ZIP upload or document-reading operations, so those workflows will not be available until the backend endpoints are implemented.
+```powershell
+cd frontend
+npm.cmd install
+npm.cmd start
+```
 
-For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS. Docker deployment is planned; Docker by itself does not configure HTTPS.
+On macOS or Linux:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Open <http://localhost:4200>. The development server forwards `/api` requests to `http://localhost:8080`, so the frontend and backend can run in separate terminals without additional local CORS setup.
+
+Sign in with the bootstrap administrator credentials configured for the backend. The current frontend supports:
+
+1. Signing in with a user ID and password and using the returned permissions to control available pages.
+2. Browsing and searching registered Knowledge Base metadata as a reader or administrator.
+3. Registering Knowledge Base metadata and granting or revoking a user's reader or administrator permission from the Admin area.
+4. Choosing the Light, Gray, or Black theme.
+
+New users are created through `POST /api/users/register` (see **Try the API in Swagger**) and start with `NO_ACCESS`; an administrator can then grant them reader access in the frontend. The backend currently has no ZIP upload or document retrieval endpoints. The frontend therefore displays Knowledge Base details but cannot yet import ZIP files or render Markdown documents. Replacement and removal are also not available in the current API.
+
+For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
 The default PostgreSQL connection is `jdbc:postgresql://localhost:5432/togafmate` with user `postgres` and an empty password. Set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` before starting to use different connection values. The API starts at `http://localhost:8080`.
 
@@ -82,7 +105,7 @@ flowchart LR
     Backend -->|Document storage| Files[Persistent filesystem]
 ```
 
-The repository currently contains the Spring Boot backend. Angular, Knowledge Base file import and retrieval, persistent document storage, and Docker deployment are planned components described in `SPECS.md`.
+The repository contains the Angular frontend and Spring Boot backend. Knowledge Base file import and retrieval, persistent document storage, and Docker deployment are planned components described in `SPECS.md`.
 
 ## Technology
 
@@ -144,5 +167,5 @@ AGENTS.md       Coding and collaboration instructions
 README.md       Project overview, architecture, and usage instructions
 SPECS.md        Canonical project requirements and specifications
 backend/        Spring Boot REST API and tests
-frontend/       Planned Angular frontend (not created yet)
+frontend/       Angular frontend
 ```
