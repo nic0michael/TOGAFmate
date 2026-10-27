@@ -224,6 +224,45 @@ The configured storage root is controlled by the server and cannot be overridden
 - Ensure the deployment can be recreated consistently across development, testing, and production environments.
 - Ensure that container replacement or recreation does not unintentionally delete persistent data.
 
+### 4.5 Frontend Location, Experience, and Themes
+
+- The Angular frontend source code must be located in the repository's `frontend/` directory, alongside `backend/`.
+- The interface must use a clean, uncluttered corporate style with clear headings, readable typography, generous spacing, and familiar navigation.
+- The default visual direction is a light interface with warm-white or light-gray surfaces, dark-charcoal text, and a restrained muted-blue or teal accent for links and primary actions.
+- Provide three selectable visual themes: **Light**, **Gray**, and **Black**. Light is the default theme. All themes must maintain readable text contrast and accessible controls.
+- Use CSS styling and theme variables so the corporate look and feel can be applied consistently and adjusted without changing application behavior.
+- The frontend is a separately deployable Docker application component and communicates with the Java backend over the REST API.
+
+### 4.6 Frontend Authentication and Permissions
+
+- Users sign in with their user ID and password using HTTP Basic authentication. The backend's logon operation returns the user's permissions after validating the credentials.
+- The frontend uses HTTP Basic credentials for protected API requests and uses the returned permissions to present the pages and actions available to that user. The API does not use an application session or bearer-token flow in the initial implementation.
+- Users with `USER_ACCESS` may access reader pages and perform read-only operations on Knowledge Bases and their content.
+- Users with `ADMINISTRATOR_ACCESS` may access reader pages and administrative pages and perform the administrative operations allowed by the backend.
+- Users without the required permission must not be shown protected pages or actions. The backend must independently enforce every permission check, as specified in Section 10.3.
+- The frontend must provide a sign-out action that clears the in-memory authentication state and clear feedback for failed authentication or denied access.
+- Production deployments must use HTTPS for frontend and API traffic so credentials and protected content are encrypted in transit. Local development may use HTTP on localhost. Docker deployment must provide HTTPS at the application entry point, such as through a TLS-terminating reverse proxy; containerisation alone does not provide HTTPS.
+- The frontend must not persist passwords or HTTP Basic credentials in browser storage. Credentials should be held in memory only while the user is signed in.
+
+### 4.7 Reader and Administrator User Journeys
+
+#### Reader journey
+
+1. The user signs in with their user ID and password.
+2. The application displays the Knowledge Bases that the user's permissions allow them to access. The list should show the title, version, and description where available, and provide basic metadata search.
+3. The user selects a Knowledge Base and opens its reading view.
+4. The reading view presents the Table of Contents alongside the selected Markdown document. If no Table of Contents is supplied, the application presents navigation generated from registered document metadata.
+5. The user selects other documents from the navigation and continues reading. The user can return to the Knowledge Base list and sign out at any time.
+
+#### Administrator journey
+
+1. The administrator signs in with their user ID and password and receives the reader experience plus an Admin area.
+2. In the Admin area, the administrator registers a Knowledge Base or uploads its ZIP archive, reviews validation feedback, and sees confirmation when it is accepted.
+3. The administrator views registered Knowledge Bases and can select one to replace or remove it. The application requests confirmation before replacement or removal and displays the operation result.
+4. The administrator finds a user and grants or revokes reader or administrator permissions. The application confirms permission changes and reports success or failure.
+
+The user journeys describe the intended frontend experience. Upload, document retrieval, replacement, and removal require corresponding backend API operations before those steps can work end to end.
+
 ---
 
 ## 5. Technology Stack
