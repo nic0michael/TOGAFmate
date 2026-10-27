@@ -134,9 +134,24 @@ The `<dockerhub-namespace>` text is a placeholder; replace it with your actual n
 
 ### Stage 2: Run the complete stack
 
-Stage 2 will add a root-level `compose.yaml` that runs the frontend image, backend image, and an official PostgreSQL image as separate services on a shared network. The frontend will reach the backend by the service name `backend`; the backend will connect to PostgreSQL by its Compose service name.
+The Stage 2 Compose setup is in `docker-compose/compose.yaml`, with local settings in `docker-compose/.env` and placeholders in `docker-compose/.env.example`. The `.env` file is ignored by Git and must not be copied into application images. A fresh checkout can create its local file from the example:
 
-Stage 2 will also configure persistent PostgreSQL and Knowledge Base storage, runtime secrets, and HTTPS at the deployment entry point. The PostgreSQL image should use a pinned supported major version rather than the floating `latest` tag. A local `.env` file may supply Compose variables, but it must be ignored by Git and kept out of the images; a placeholder-only `.env.example` can be committed. Production secrets should be injected by the deployment environment or a secrets manager.
+```powershell
+Copy-Item .env.example .env
+```
+
+On macOS or Linux, use `cp .env.example .env` instead. Run the copy command from `docker-compose/`.
+
+Run that command from the `docker-compose/` directory, then set database credentials and bootstrap administrator credentials in `.env`. Set unique strong passwords; the bootstrap administrator password is stored in this file. The local `.env` in this workspace already has generated passwords. The Compose file contains the full Docker Hub image references and version tag. Ensure those images have been pushed before pulling and starting the stack:
+
+```shell
+docker compose pull
+docker compose up -d
+```
+
+The frontend is available at <http://localhost:8080>. The services use a shared network; the frontend reaches the backend as `backend:8080`, and the backend reaches PostgreSQL as `postgres:5432`. PostgreSQL data is stored under `docker-compose/data/`. Stop any existing local PostgreSQL container already using host port 5432, or change `POSTGRES_PORT` in `.env`. This local Compose setup serves HTTP; production use still requires an HTTPS entry point.
+
+Production deployments still need an HTTPS entry point and appropriate persistent storage for Knowledge Base files. The PostgreSQL image uses the pinned major tag `postgres:17`; avoid the floating `latest` tag. Production secrets should be injected by the deployment environment or a secrets manager.
 
 ## Architecture
 
@@ -149,7 +164,7 @@ flowchart LR
     Backend -->|Document storage| Files[Persistent filesystem]
 ```
 
-The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images. Compose orchestration, PostgreSQL container configuration, persistent volumes, HTTPS deployment, Knowledge Base file import, and document retrieval remain planned work described in `SPECS.md`.
+The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images, and the Stage 2 Compose files are under `docker-compose/`. HTTPS deployment, persistent Knowledge Base file storage, ZIP import, and document retrieval remain future work described in `SPECS.md`.
 
 ## Technology
 

@@ -14,6 +14,7 @@
 .env
 .env.*
 !.env.example
+docker-compose/data/
 **/application-local.properties
 
 # Logs and crash dumps

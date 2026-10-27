@@ -279,10 +279,11 @@ Containerisation will be delivered in two stages.
 
 #### Stage 2: Compose deployment
 
-- Add a root-level `compose.yaml` to run the frontend, backend, and PostgreSQL as separate services.
+- Add `docker-compose/compose.yaml` to run the frontend, backend, and PostgreSQL as separate services. Keep the Stage 2 `.env` and `.env.example` in the same directory.
+- Use the full image references `docker.io/zs6bvr/togafmate-frontend:1.0` and `docker.io/zs6bvr/togafmate-backend:1.0` in the Compose file; do not configure the Docker Hub namespace through an environment variable.
 - Connect the services on a shared Docker network. The frontend must be able to reach the backend by the service name `backend`; the backend must reach PostgreSQL by its Compose service name.
 - Use the official PostgreSQL image and pin it to a supported major version. Do not use the floating `latest` tag for deployments.
-- Persist PostgreSQL data in a volume separate from persistent Knowledge Base file storage.
+- Persist PostgreSQL data separately from persistent Knowledge Base file storage. The initial local Compose configuration may use a bind mount under `docker-compose/data`; this directory must not be committed.
 - Provide deployment-specific secrets and configuration at runtime. A local `.env` file may supply Compose variables but must be excluded from version control and must not be copied into application images. Commit a `.env.example` containing variable names and placeholders only. Production deployments should inject secrets through the deployment environment or a secrets manager.
 - Production access must use HTTPS for frontend and API traffic, with TLS provided by the deployment's HTTPS entry point. Docker or Compose alone does not enable TLS.
 
