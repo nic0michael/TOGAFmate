@@ -66,27 +66,6 @@ New users are created through `POST /api/users/register` (see **Try the API in S
 
 For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
-### Stage 1: Build and publish Docker images
-
-Stage 1 provides separate Docker images for the frontend and backend. The frontend image builds Angular and serves the compiled app from an Alpine-based Nginx image. Its `/api` requests are proxied to a backend container named `backend`. The backend image builds the Spring Boot application and runs it on Ubuntu 24.04 with Java 21. PostgreSQL and the shared application network are part of Stage 2; the backend image needs a PostgreSQL connection supplied when it is run.
-
-Install Docker Desktop or Docker Engine and sign in to Docker Hub:
-
-```shell
-docker login
-```
-
-Replace `<dockerhub-namespace>` with your Docker Hub username or organization, then build and publish both images from the repository root:
-
-```shell
-docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-frontend:1.0 ./frontend
-docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-backend:1.0 ./backend
-docker push <dockerhub-namespace>/togafmate-frontend:1.0
-docker push <dockerhub-namespace>/togafmate-backend:1.0
-```
-
-The frontend container listens on port `8080`. Its Nginx configuration expects the backend to be reachable as `backend:8080` on a shared container network. The backend listens on port `8080` and reads PostgreSQL and bootstrap administrator settings from the environment. Do not put secrets into either image. Compose orchestration, PostgreSQL, persistent volumes, and HTTPS termination are deferred to Stage 2.
-
 The default PostgreSQL connection is `jdbc:postgresql://localhost:5432/togafmate` with user `postgres` and an empty password. Set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` before starting to use different connection values. The API starts at `http://localhost:8080`.
 
 ### Try the API in Swagger
@@ -115,6 +94,50 @@ Open [Swagger UI](http://localhost:8080/swagger-ui/index.html). Select **Authori
 
 These sample values are for local testing only. Protected API calls use HTTP Basic authorization; use HTTPS when deploying outside local development.
 
+## Docker Images and Deployment
+
+Docker deployment is planned in two stages. Stage 1 builds and publishes separate frontend and backend images. Stage 2 will add Docker Compose orchestration and PostgreSQL.
+
+### Stage 1: Build and publish images
+
+Install Docker Desktop or Docker Engine and make sure the Docker daemon is running. The Dockerfiles are in `frontend/Dockerfile` and `backend/Dockerfile`.
+
+The frontend image builds Angular with Node.js and serves the production files from Alpine-based Nginx. It listens on port `8080` and forwards `/api` requests to a backend container reachable as `backend:8080`. The backend image builds the Spring Boot API and runs on Ubuntu 24.04 with Java 21. It listens on port `8080` and expects its database and bootstrap administrator settings through runtime environment variables. These application images do not include PostgreSQL.
+
+Sign in to Docker Hub. Docker prompts for credentials; use a Docker Hub access token if that is how your account is configured. Do not put credentials or tokens in these instructions or in the image:
+
+```shell
+docker login
+```
+
+Replace the namespace below with your Docker Hub username or organization. Create the two Docker Hub repositories first if they do not already exist. Run these commands from the repository root:
+
+```shell
+docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-frontend:1.0 ./frontend
+docker build --build-arg APP_VERSION=1.0 -t <dockerhub-namespace>/togafmate-backend:1.0 ./backend
+```
+
+For example, if your Docker Hub namespace is `architectureteam`, the frontend build command is:
+
+```shell
+docker build --build-arg APP_VERSION=1.0 -t architectureteam/togafmate-frontend:1.0 ./frontend
+```
+
+Push both images after the builds finish successfully:
+
+```shell
+docker push <dockerhub-namespace>/togafmate-frontend:1.0
+docker push <dockerhub-namespace>/togafmate-backend:1.0
+```
+
+The `<dockerhub-namespace>` text is a placeholder; replace it with your actual namespace in each command. The `1.0` image tag and `APP_VERSION` label identify this Stage 1 release. Never pass passwords, database credentials, or bootstrap secrets as Docker build arguments or copy them into an image.
+
+### Stage 2: Run the complete stack
+
+Stage 2 will add a root-level `compose.yaml` that runs the frontend image, backend image, and an official PostgreSQL image as separate services on a shared network. The frontend will reach the backend by the service name `backend`; the backend will connect to PostgreSQL by its Compose service name.
+
+Stage 2 will also configure persistent PostgreSQL and Knowledge Base storage, runtime secrets, and HTTPS at the deployment entry point. The PostgreSQL image should use a pinned supported major version rather than the floating `latest` tag. A local `.env` file may supply Compose variables, but it must be ignored by Git and kept out of the images; a placeholder-only `.env.example` can be committed. Production secrets should be injected by the deployment environment or a secrets manager.
+
 ## Architecture
 
 The target design separates the web client, REST API, metadata database, and file storage:
@@ -126,7 +149,7 @@ flowchart LR
     Backend -->|Document storage| Files[Persistent filesystem]
 ```
 
-The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing the separate application images. Compose orchestration, PostgreSQL container configuration, persistent volumes, HTTPS deployment, Knowledge Base file import, and document retrieval remain planned work described in `SPECS.md`.
+The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images. Compose orchestration, PostgreSQL container configuration, persistent volumes, HTTPS deployment, Knowledge Base file import, and document retrieval remain planned work described in `SPECS.md`.
 
 ## Technology
 
