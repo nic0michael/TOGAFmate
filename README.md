@@ -88,7 +88,29 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
    }
    ```
 
-   A successful response contains `userID`, `permissions`, `accessToken`, `tokenType`, and `expiresIn`; it never includes the password. The browser stores the HttpOnly cookie automatically, and it is valid for 15 minutes. For a curl command run outside Swagger, add `-H 'Authorization: Bearer YOUR_ACCESS_TOKEN'` using the response's `accessToken` value.
+   A successful response contains `userID`, `permissions`, `accessToken`, `tokenType`, and `expiresIn`; it never includes the password. The browser stores the HttpOnly cookie automatically, and it is valid for 15 minutes. For curl outside Swagger, log in and copy the response's `accessToken`:
+
+   ```bash
+   curl -X POST 'http://localhost:8999/api/users/login' \
+     -H 'Content-Type: application/json' \
+     -d '{"userID":"admim","password":"YOUR_ADMIN_PASSWORD"}'
+   ```
+
+   Add that token as a Bearer header on protected requests. For example, create a Knowledge Base with:
+
+   ```bash
+   curl -X POST 'http://localhost:8999/api/knowledge-bases' \
+     -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \
+     -H 'Content-Type: application/json' \
+     -d '{
+       "title":"TOGAF Demo Guide",
+       "folderNameVersion":"TOGAF_Demo_Guide_v1.0",
+       "version":"1.0",
+       "contentType":"Free",
+       "description":"Local Swagger test entry",
+       "isActive":true
+     }'
+   ```
 
 2. **Grant reader access:** With the login token authorized, call `PUT /api/users/reader.demo/permissions` with:
 
