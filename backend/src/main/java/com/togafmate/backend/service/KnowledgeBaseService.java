@@ -26,7 +26,7 @@ public class KnowledgeBaseService {
 
     /** Returns all registered Knowledge Bases. */
     public List<KnowledgeBaseResponse> findAll() {
-        List<KnowledgeBaseResponse> knowledgeBases = knowledgeBaseRepository.findAll().stream()
+        List<KnowledgeBaseResponse> knowledgeBases = knowledgeBaseRepository.findAllByIsActiveTrue().stream()
                 .map(this::toResponse)
                 .toList();
         LOGGER.info("Retrieved {} Knowledge Bases", knowledgeBases.size());
@@ -55,6 +55,6 @@ public class KnowledgeBaseService {
         return new KnowledgeBaseResponse(knowledgeBase.getId(), knowledgeBase.getTitle(),
                 knowledgeBase.getVersion(), knowledgeBase.getDescription(), knowledgeBase.getContentType(),
                 knowledgeBase.getFolderNameVersion(), knowledgeBase.getAuthor(), knowledgeBase.getEmailAddress(),
-                knowledgeBase.getTableOfContents());
+                knowledgeBase.getTableOfContents(), knowledgeBase.getIsActive());
     }
 }

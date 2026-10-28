@@ -50,7 +50,21 @@ class KnowledgeBaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Architecture"))
                 .andExpect(jsonPath("$[0].version").value("1.0"))
-                .andExpect(jsonPath("$[0].contentType").value("Free"));
+                .andExpect(jsonPath("$[0].contentType").value("Free"))
+                .andExpect(jsonPath("$[0].isActive").value(true));
+    }
+
+    @Test
+    void should_notListInactiveKnowledgeBases_whenListingKnowledgeBases() throws Exception {
+        knowledgeBaseRepository.save(new KnowledgeBase("Active Guide", "Active_Guide_v1", "1.0", null, null,
+                null, null, "Free", true));
+        knowledgeBaseRepository.save(new KnowledgeBase("Inactive Guide", "Inactive_Guide_v1", "1.0", null,
+                null, null, null, "Free", false));
+
+        mockMvc.perform(get("/api/knowledge-bases"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].title").value(org.hamcrest.Matchers.contains("Active Guide")))
+                .andExpect(jsonPath("$[0].isActive").value(true));
     }
 
     @Test
@@ -72,11 +86,23 @@ class KnowledgeBaseControllerTest {
                         .contentType("application/json")
                         .content("""
                                 {"title":"Architecture","folderNameVersion":"Architecture_Guide_v1.0",
-                                 "version":"1.0","contentType":"Free"}
+                                 "version":"1.0","contentType":"Free","isActive":true}
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Architecture"))
-                .andExpect(jsonPath("$.folderNameVersion").value("Architecture_Guide_v1.0"));
+                .andExpect(jsonPath("$.folderNameVersion").value("Architecture_Guide_v1.0"))
+                .andExpect(jsonPath("$.isActive").value(true));
+    }
+
+    @Test
+    void should_rejectKnowledgeBase_whenIsActiveIsMissing() throws Exception {
+        mockMvc.perform(post("/api/knowledge-bases")
+                        .contentType("application/json")
+                        .content("""
+                                {"title":"Architecture","folderNameVersion":"Architecture_Guide_v1.0",
+                                 "version":"1.0","contentType":"Free"}
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -88,13 +114,15 @@ class KnowledgeBaseControllerTest {
                         .contentType("application/json")
                         .content("""
                                 {"title":"Updated Architecture","folderNameVersion":"architecture-v2",
-                                 "version":"2.0","description":"Updated description","contentType":"Open-source"}
+                                 "version":"2.0","description":"Updated description","contentType":"Open-source",
+                                 "isActive":false}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(knowledgeBase.getId().toString()))
                 .andExpect(jsonPath("$.title").value("Updated Architecture"))
                 .andExpect(jsonPath("$.folderNameVersion").value("architecture-v2"))
-                .andExpect(jsonPath("$.version").value("2.0"));
+                .andExpect(jsonPath("$.version").value("2.0"))
+                .andExpect(jsonPath("$.isActive").value(false));
     }
 
     @Test
@@ -107,7 +135,7 @@ class KnowledgeBaseControllerTest {
                         .contentType("application/json")
                         .content("""
                                 {"title":"Updated Architecture","folderNameVersion":"architecture-v2",
-                                 "version":"2.0","contentType":"Open-source"}
+                                 "version":"2.0","contentType":"Open-source","isActive":true}
                                 """))
                 .andExpect(status().isForbidden());
     }

@@ -49,6 +49,9 @@ public class KnowledgeBaseValidator {
         if (!isValidContentType(knowledgeBase.getContentType())) {
             errors.add("content type is invalid");
         }
+        if (knowledgeBase.getIsActive() == null) {
+            errors.add("isActive is required");
+        }
         if (!isValidOptionalEmail(knowledgeBase.getEmailAddress())) {
             errors.add("email_address is invalid");
         }

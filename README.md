@@ -2,9 +2,9 @@
 
 TOGAFmate is a web application for managing and reading collections of Knowledge Base documents. The project specifications and detailed product requirements are in [SPECS.md](SPECS.md). This README describes the current implementation and explains how to run and test the application.
 
-## Quick Start
+## 1. Quick Start
 
-### Build
+### 1.1 Build
 
 Install Java 21. From the repository root, build the backend on Windows:
 
@@ -15,7 +15,7 @@ cd backend
 
 On macOS or Linux, use `./gradlew clean build` from the `backend` directory. The build runs the backend tests against the in-memory H2 database at `jdbc:h2:mem:togafmate-test`, using user `sa` and an empty password. Tests do not need PostgreSQL. This H2 URL is for tests only—the running application uses PostgreSQL. No H2 web console is configured. See the [H2 Database Engine](https://h2database.com/) and its [FAQ](https://h2database.com/html/faq.html) for H2 details and connection defaults.
 
-### Run
+### 1.2 Run
 
 Make sure PostgreSQL is running with the database and credentials in `docker-compose/.env`. The local file sets `ADMIN_USER=admim`; keep `ADMIN_USER_PASSWORD` in that ignored file. From the repository root in Windows PowerShell, start the API:
 
@@ -31,7 +31,7 @@ cd backend
 ./gradlew bootRun
 ```
 
-### Run the frontend
+### 1.3 Run the frontend
 
 Install Node.js 24. From the repository root, open a second terminal while the API is running. On Windows PowerShell:
 
@@ -58,13 +58,13 @@ Sign in with the bootstrap administrator credentials configured for the backend.
 3. Registering Knowledge Base metadata and granting or revoking a user's reader or administrator permission from the Admin area.
 4. Choosing the Light, Gray, or Black theme.
 
-New users are created through `POST /api/users/register` (see **Try the API in Swagger**) and start with `NO_ACCESS`; an administrator can then grant them reader access in the frontend. The backend currently has no ZIP upload or document retrieval endpoints. The frontend therefore displays Knowledge Base details but cannot yet import ZIP files or render Markdown documents. Replacement and removal are also not available in the current API.
+New users are created through `POST /api/users/register` (see **Try the API in Swagger**) and start with `NO_ACCESS`; an administrator can then grant them reader access in the frontend. The backend currently has no ZIP upload or document retrieval endpoints. The frontend therefore displays Knowledge Base details but cannot yet import ZIP files or render Markdown documents. The API supports metadata updates and soft deactivation; it does not physically delete Knowledge Base records.
 
 For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
 The local backend runs at `http://localhost:8999`. Its database URL and credentials come from the ignored local backend configuration; set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` to override them. Docker services continue to use port `8080` internally.
 
-### Try the API in Swagger
+### 1.4 Try the API in Swagger
 
 Open [Swagger UI](http://localhost:8999/swagger-ui/index.html). Log in once; the backend sets a short-lived HttpOnly JWT cookie, and the browser sends it automatically on protected Swagger requests. No manual token copying is needed when you run requests in the Swagger page.
 
@@ -117,11 +117,12 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
      "folderNameVersion": "TOGAF_Demo_Guide_v1.0",
      "version": "1.0",
      "contentType": "Free",
-     "description": "Local Swagger test entry"
+     "description": "Local Swagger test entry",
+     "isActive": true
    }
    ```
 
-   Required fields are `title`, `folderNameVersion`, `version`, and `contentType`. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. This endpoint registers metadata only; ZIP upload and document storage are not implemented yet. The response includes the generated ID, for example:
+   Required fields are `title`, `folderNameVersion`, `version`, `contentType`, and `isActive`. Set `isActive` to `true` to make the Knowledge Base visible or `false` to register it as inactive. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. This endpoint registers metadata only; ZIP upload and document storage are not implemented yet. The response includes the generated ID, for example:
 
    ```json
    {
@@ -133,7 +134,8 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
      "folderNameVersion": "TOGAF_Demo_Guide_v1.0",
      "author": null,
      "emailAddress": null,
-     "tableOfContents": null
+     "tableOfContents": null,
+     "isActive": true
    }
    ```
 
@@ -147,21 +149,22 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
      "folderNameVersion": "TOGAF_Demo_Guide_v1.1",
      "version": "1.1",
      "contentType": "Free",
-     "description": "Updated local Swagger test entry"
+     "description": "Updated local Swagger test entry",
+     "isActive": false
    }
    ```
 
-   The database UUID stays the same; metadata is validated and the folder identifier must remain unique.
+   The database UUID stays the same; metadata is validated and the folder identifier must remain unique. Setting `isActive` to `false` soft-deactivates the Knowledge Base without deleting it. Set it back to `true` to reactivate it. `GET /api/knowledge-bases` returns active Knowledge Bases only.
 
 7. **List Knowledge Bases:** Call `GET /api/knowledge-bases` while authorized as the administrator or a user with `USER_ACCESS`.
 
 Protected API calls accept `Authorization: Bearer <accessToken>` and the browser also accepts the HttpOnly cookie set by login. Login tokens expire after 15 minutes; sign in again to get a new token. Sign-out clears the browser cookie, and the Angular app clears its in-memory token. `POST /api/users/logon` remains available as a compatibility alias for `/api/users/login` and also returns a JWT. Configure `JWT_SECRET` as a Base64-encoded random value containing at least 32 bytes; never commit it. Use HTTPS when deploying outside local development.
 
-## Docker Images and Deployment
+## 2. Docker Images and Deployment
 
 Docker deployment is planned in two stages. Stage 1 builds and publishes separate frontend and backend images. Stage 2 will add Docker Compose orchestration and PostgreSQL.
 
-### Stage 1: Build and publish images
+### 2.1 Stage 1: Build and publish images
 
 Install Docker Desktop or Docker Engine and make sure the Docker daemon is running. The Dockerfiles are in `frontend/Dockerfile` and `backend/Dockerfile`.
 
@@ -195,7 +198,7 @@ docker push <dockerhub-namespace>/togafmate-backend:1.0
 
 The `<dockerhub-namespace>` text is a placeholder; replace it with your actual namespace in each command. The `1.0` image tag and `APP_VERSION` label identify this Stage 1 release. Never pass passwords, database credentials, or bootstrap secrets as Docker build arguments or copy them into an image.
 
-### Stage 2: Run the complete stack
+### 2.2 Stage 2: Run the complete stack
 
 The Stage 2 Compose setup is in `docker-compose/compose.yaml`, with local settings in `docker-compose/.env` and placeholders in `docker-compose/.env.example`. The `.env` file is ignored by Git and must not be copied into application images. A fresh checkout can create its local file from the example:
 
@@ -216,7 +219,7 @@ The frontend is available at <http://localhost:8080>. The services use a shared 
 
 Production deployments still need an HTTPS entry point and appropriate persistent storage for Knowledge Base files. The PostgreSQL image uses the pinned major tag `postgres:17`; avoid the floating `latest` tag. Production secrets should be injected by the deployment environment or a secrets manager.
 
-## Architecture
+## 3. Architecture
 
 The target design separates the web client, REST API, metadata database, and file storage:
 
@@ -229,7 +232,7 @@ flowchart LR
 
 The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images, and the Stage 2 Compose files are under `docker-compose/`. HTTPS deployment, persistent Knowledge Base file storage, ZIP import, and document retrieval remain future work described in `SPECS.md`.
 
-## Technology
+## 4. Technology
 
 - Java 21 and Spring Boot
 - Gradle with Kotlin DSL
@@ -238,7 +241,7 @@ The repository contains the Angular frontend and Spring Boot backend. Stage 1 Do
 - Swagger UI for API exploration
 - H2 in-memory database for tests
 
-## Configuration
+## 5. Configuration
 
 The default PostgreSQL URL is `jdbc:postgresql://localhost:5432/togafmate`, with username `postgres` and an empty password. Override these defaults with `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`. JPA schema management defaults to `update`; set `JPA_DDL_AUTO` to change it.
 
@@ -246,7 +249,7 @@ Set `ADMIN_USER` and `ADMIN_USER_PASSWORD` in `docker-compose/.env` for the conf
 
 Set `JWT_SECRET` to a Base64-encoded cryptographically random value of at least 32 bytes for each backend runtime. Local `bootRun` reads it from the ignored `backend/application-local.properties`; keep the same value across backend instances. Changing the secret invalidates all tokens currently in use. The local development secret is generated locally and is not part of the repository.
 
-## API and Swagger
+## 6. API and Swagger
 
 Open [Swagger UI](http://localhost:8999/swagger-ui/index.html) or the [OpenAPI document](http://localhost:8999/v3/api-docs) while running the backend locally. Call `POST /api/users/login` once; Swagger's browser automatically sends the login cookie on subsequent protected requests. The response token can be used in curl or other API clients.
 
@@ -259,7 +262,7 @@ Open [Swagger UI](http://localhost:8999/swagger-ui/index.html) or the [OpenAPI d
 | `POST` | `/api/users/logout` | Public | Clear the browser login cookie |
 | `GET` | `/api/users` | `ADMINISTRATOR_USER_ACCESS` | List users and permissions without password data |
 | `PUT` | `/api/users/{userID}` | `ADMINISTRATOR_USER_ACCESS` | Change a user's ID and optionally their password |
-| `GET` | `/api/knowledge-bases` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | List Knowledge Base metadata |
+| `GET` | `/api/knowledge-bases` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | List active Knowledge Base metadata |
 | `POST` | `/api/knowledge-bases` | `ADMINISTRATOR_USER_ACCESS` | Validate and register Knowledge Base metadata |
 | `PUT` | `/api/knowledge-bases/{id}` | `ADMINISTRATOR_USER_ACCESS` | Validate and update Knowledge Base metadata |
 | `PUT` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_USER_ACCESS` | Add a permission |
@@ -267,11 +270,11 @@ Open [Swagger UI](http://localhost:8999/swagger-ui/index.html) or the [OpenAPI d
 
 Permission request bodies use an enum value, for example `{"permission":"USER_ACCESS"}`. Available values are `USER_ACCESS`, `ADMINISTRATOR_USER_ACCESS`, and `NO_ACCESS`. Protected requests require a valid Bearer JWT; use HTTPS when deploying outside local development.
 
-Knowledge Base registration requires `title`, `folderNameVersion`, `version`, and `contentType`. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. Optional metadata includes `author`, `emailAddress`, `tableOfContents`, and `description`.
+Knowledge Base registration and updates require `title`, `folderNameVersion`, `version`, `contentType`, and `isActive`. Set `isActive` to `false` to soft-deactivate a Knowledge Base; records are retained, and only active records appear in `GET /api/knowledge-bases`. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. Optional metadata includes `author`, `emailAddress`, `tableOfContents`, and `description`.
 
 The Angular development origin `http://localhost:4200` is allowed by default. Set `APP_CORS_ALLOWED_ORIGINS` to a comma-separated list of exact origins for other environments.
 
-## Test
+## 7. Test
 
 Tests use an in-memory H2 database, so PostgreSQL does not need to be running for the test suite.
 
@@ -289,7 +292,7 @@ On macOS or Linux:
 
 JaCoCo reports are generated under `backend/build/reports/jacoco/test/`.
 
-## Repository layout
+## 8. Repository layout
 
 ```text
 AGENTS.md       Coding and collaboration instructions

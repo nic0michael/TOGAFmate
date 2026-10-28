@@ -39,18 +39,27 @@ public class KnowledgeBase {
     @Column(name = "table_of_contents")
     private String tableOfContents;
 
+    @Column(name = "knowledge_base_is_active")
+    private Boolean isActive;
+
     protected KnowledgeBase() {
     }
 
     /** Creates metadata for a Knowledge Base. */
     public KnowledgeBase(String title, String version, String description, String contentType,
             String folderNameVersion) {
-        this(title, folderNameVersion, version, null, null, null, description, contentType);
+        this(title, folderNameVersion, version, null, null, null, description, contentType, true);
     }
 
     /** Creates Knowledge Base metadata using the fields defined by the project specification. */
     public KnowledgeBase(String title, String folderNameVersion, String version, String author,
             String emailAddress, String tableOfContents, String description, String contentType) {
+        this(title, folderNameVersion, version, author, emailAddress, tableOfContents, description, contentType, true);
+    }
+
+    /** Creates Knowledge Base metadata with an explicit active state. */
+    public KnowledgeBase(String title, String folderNameVersion, String version, String author,
+            String emailAddress, String tableOfContents, String description, String contentType, Boolean isActive) {
         this.title = title;
         this.folderNameVersion = folderNameVersion;
         this.version = version;
@@ -59,6 +68,7 @@ public class KnowledgeBase {
         this.tableOfContents = tableOfContents;
         this.description = description;
         this.contentType = contentType;
+        this.isActive = isActive;
     }
 
     /** Returns the database identifier. */
@@ -106,6 +116,11 @@ public class KnowledgeBase {
         return tableOfContents;
     }
 
+    /** Returns whether this Knowledge Base is active. */
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
     /** Replaces editable Knowledge Base metadata while preserving its database identifier. */
     public void updateMetadata(KnowledgeBase metadata) {
         title = metadata.title;
@@ -116,5 +131,6 @@ public class KnowledgeBase {
         author = metadata.author;
         emailAddress = metadata.emailAddress;
         tableOfContents = metadata.tableOfContents;
+        isActive = metadata.isActive;
     }
 }

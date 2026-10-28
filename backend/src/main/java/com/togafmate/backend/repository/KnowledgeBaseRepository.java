@@ -9,6 +9,9 @@ import com.togafmate.backend.entity.KnowledgeBase;
 
 /** Provides persistence operations for Knowledge Base metadata. */
 public interface KnowledgeBaseRepository extends JpaRepository<KnowledgeBase, UUID> {
+    /** Finds only Knowledge Bases marked active. */
+    List<KnowledgeBase> findAllByIsActiveTrue();
+
     /** Checks whether a folder identifier is already registered. */
     boolean existsByFolderNameVersion(String folderNameVersion);
 

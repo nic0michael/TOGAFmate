@@ -48,7 +48,7 @@ public class KnowledgeBaseController {
     public ResponseEntity<KnowledgeBaseResponse> createKnowledgeBase(@RequestBody KnowledgeBaseRequest request) {
         KnowledgeBase knowledgeBase = new KnowledgeBase(request.title(), request.folderNameVersion(),
                 request.version(), request.author(), request.emailAddress(), request.tableOfContents(),
-                request.description(), request.contentType());
+                request.description(), request.contentType(), request.isActive());
         List<String> errors = knowledgeBaseValidator.validate(knowledgeBase);
         if (!errors.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join("; ", errors));
@@ -67,7 +67,7 @@ public class KnowledgeBaseController {
         }
         KnowledgeBase metadata = new KnowledgeBase(request.title(), request.folderNameVersion(),
                 request.version(), request.author(), request.emailAddress(), request.tableOfContents(),
-                request.description(), request.contentType());
+                request.description(), request.contentType(), request.isActive());
         List<String> errors = knowledgeBaseValidator.validate(metadata, id);
         if (!errors.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join("; ", errors));

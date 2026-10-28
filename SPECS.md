@@ -26,7 +26,7 @@ TOGAFmate aims to provide:
 - PostgreSQL storage for metadata and access permissions.
 - Version identification for each Knowledge Base.
 - Access control for readers and administrators.
-- A secure mechanism for uploading, replacing, and removing Knowledge Bases.
+- A secure mechanism for uploading, replacing, and soft-deactivating Knowledge Bases.
 - A Docker-based deployment model.
 - An open-source platform that can be extended by the community.
 
@@ -105,13 +105,13 @@ Administrators will be able to:
 - Upload a Knowledge Base.
 - Register its metadata.
 - Replace an existing Knowledge Base version.
-- Remove a Knowledge Base.
+- Soft-deactivate or reactivate a Knowledge Base without deleting its metadata.
 - Manage access permissions.
 - View the registered documents and their metadata.
 
-The application must validate changes before activating a new or replacement Knowledge Base.
+The application must validate changes before activating a new or replacement Knowledge Base. Knowledge Base records must not be physically deleted through application operations; deactivation is represented by an active status.
 
-Replacement and removal operations must avoid leaving database metadata and filesystem content inconsistent.
+Replacement and deactivation operations must avoid leaving database metadata and filesystem content inconsistent.
 
 ### 2.6 Search and Discovery
 
@@ -265,10 +265,10 @@ The configured storage root is controlled by the server and cannot be overridden
 
 1. The administrator signs in with their user ID and password and receives the reader experience plus an Admin area.
 2. In the Admin area, the administrator registers a Knowledge Base or uploads its ZIP archive, reviews validation feedback, and sees confirmation when it is accepted.
-3. The administrator views registered Knowledge Bases and can select one to replace or remove it. The application requests confirmation before replacement or removal and displays the operation result.
+3. The administrator views active Knowledge Bases and can select one to replace or deactivate it. The application requests confirmation before replacement or deactivation and displays the operation result.
 4. The administrator finds a user and grants or revokes reader or administrator permissions. The application confirms permission changes and reports success or failure.
 
-The user journeys describe the intended frontend experience. Upload, document retrieval, replacement, and removal require corresponding backend API operations before those steps can work end to end.
+The user journeys describe the intended frontend experience. Upload, document retrieval, replacement, and deactivation require corresponding backend API operations before those steps can work end to end.
 
 ### 4.8 Container Build and Release Stages
 
@@ -340,11 +340,12 @@ When an administrator uploads a Knowledge Base ZIP file, the application capture
 | `title` | Required | The title of the Knowledge Base. |
 | `folder_name_version` | Required | The unique folder identifier derived from the Knowledge Base title and version. |
 | `version` | Required | The version number of the Knowledge Base. |
+| `isActive` | Required | Whether the Knowledge Base is active and visible in listings. `false` soft-deactivates it without deleting its record. |
 | `author` | Optional | The author of the Knowledge Base. |
 | `email_address` | Optional | The author's email address. |
 | `Table_Of_Contents` | Optional | The Table of Contents content or resource reference, if provided. |
 
-The application must validate all required fields before registering and activating a Knowledge Base.
+The application must validate all required fields before registering a Knowledge Base. The API requires `isActive` on create and update requests; listing endpoints return active Knowledge Bases only.
 
 Optional fields may be left blank. Their absence must not prevent an otherwise valid Knowledge Base from being uploaded.
 
@@ -475,7 +476,7 @@ The application must not store Knowledge Base documents only in a container's wr
 - Backup and recovery procedures must maintain consistency between database metadata and stored files.
 - Backups must be stored in a suitable separate location so that loss of the VM or its disk does not destroy both the live data and its backups.
 - Recovery procedures must restore PostgreSQL and the corresponding Knowledge Base files to a mutually consistent state.
-- Replacement and deletion operations must avoid leaving database metadata pointing to missing files or leaving obsolete files incorrectly registered as active.
+- Replacement and deactivation operations must avoid leaving database metadata pointing to missing files or leaving obsolete files incorrectly registered as active.
 
 Backup schedules, retention periods, and detailed recovery procedures will be defined during deployment design.
 
@@ -731,17 +732,11 @@ The following rules apply:
 
 The replacement operation must identify the existing Knowledge Base and verify that the uploaded version differs from its current version.
 
-The implementation must also define whether previous versions are retained or removed after a successful replacement. This policy will be decided during detailed design.
+The implementation must also define whether previous versions are retained or soft-deactivated after a successful replacement. This policy will be decided during detailed design.
 
-### 9.5 Removing a Knowledge Base
+### 9.5 Deactivating a Knowledge Base
 
-When an administrator removes a Knowledge Base, the application must coordinate the removal of its metadata and stored files.
-
-The implementation must define how it handles failures during removal so that the database and filesystem do not become inconsistent.
-
-Where appropriate, the application should use a controlled deletion or recovery mechanism rather than immediately and irreversibly deleting content.
-
-The detailed deletion and recovery policy will be decided during detailed design.
+Knowledge Bases must not be physically deleted through the application. An administrator deactivates a record by setting `isActive` to `false`; the database metadata and stored files are retained. Only records with `isActive` set to `true` appear in `GET /api/knowledge-bases`. An administrator can reactivate a known record by setting `isActive` to `true` in an update request.
 
 ---
 
@@ -758,7 +753,7 @@ Readers will be able to:
 - Read authorised Markdown documents.
 - Access authorised supporting resources.
 
-Readers will not be able to upload, replace, or remove Knowledge Bases or change permissions.
+Readers will not be able to upload, replace, or deactivate Knowledge Bases or change permissions.
 
 ### 10.2 Administrators
 
@@ -767,7 +762,7 @@ Administrators will be able to:
 - Create user accounts and edit user account details.
 - Upload Knowledge Bases.
 - Create and edit Knowledge Base metadata.
-- Replace or remove Knowledge Bases.
+- Replace, deactivate, or reactivate Knowledge Bases.
 - Manage access permissions.
 - Maintain the Knowledge Base collection.
 - Review administrative operations where audit logging is implemented.
@@ -788,7 +783,7 @@ This includes:
 - Accessing images and other resources.
 - Uploading ZIP files.
 - Replacing Knowledge Bases.
-- Removing Knowledge Bases.
+- Deactivating Knowledge Bases.
 - Changing permissions.
 
 Hiding links or buttons in Angular is not sufficient security.
@@ -803,9 +798,9 @@ The backend must independently verify the user's permissions before performing t
 - Administrators may create user accounts through `POST /api/users/register`. `PUT /api/users/{userID}` changes the user's ID and optionally their password; it requires `ADMINISTRATOR_USER_ACCESS`, a new `userID` field, and may include a `password` field. The update must preserve the user's permissions and reject a duplicate ID. Permission changes use the separate permission endpoint. User passwords must be stored as BCrypt hashes and must never be returned by API responses.
 - `PUT /api/users/{userID}/permissions` accepts a JSON body containing a permission enum (`USER_ACCESS`, `ADMINISTRATOR_USER_ACCESS`, or `NO_ACCESS`) and requires `ADMINISTRATOR_USER_ACCESS`. The target user must already exist.
 - `POST /api/users/register` creates an account with `NO_ACCESS`; administrators may then grant the required permission.
-- `POST /api/knowledge-bases` validates and registers Knowledge Base metadata and requires `ADMINISTRATOR_USER_ACCESS`.
-- `PUT /api/knowledge-bases/{id}` updates all Knowledge Base metadata using the same request fields and validation rules as creation. The UUID in the path identifies the record and remains unchanged; the folder identifier may be changed only when it is valid and unique. The endpoint requires `ADMINISTRATOR_USER_ACCESS`.
-- `GET /api/knowledge-bases` returns registered Knowledge Base metadata and requires `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS`.
+- `POST /api/knowledge-bases` validates and registers Knowledge Base metadata, including required boolean `isActive`, and requires `ADMINISTRATOR_USER_ACCESS`.
+- `PUT /api/knowledge-bases/{id}` updates all Knowledge Base metadata, including required boolean `isActive`, using the same request fields and validation rules as creation. Setting `isActive` to `false` soft-deactivates the record; setting it to `true` reactivates it. The UUID in the path identifies the record and remains unchanged; the folder identifier may be changed only when it is valid and unique. The endpoint requires `ADMINISTRATOR_USER_ACCESS`.
+- `GET /api/knowledge-bases` returns active Knowledge Base metadata only and requires `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS`.
 - Swagger documentation must expose these operations and show their request and response schemas and authorization requirements. Local API instructions must provide working example requests, including the prerequisite of registering a user before changing that user's permissions.
 - The configured administrator is identified at runtime using `ADMIN_USER` and `ADMIN_USER_PASSWORD`. At startup, the backend must create the account if absent or reconcile it to the configured ID, `USER_ACCESS` and `ADMINISTRATOR_USER_ACCESS`, and password. The password is stored as a BCrypt hash and is not logged or returned.
 
@@ -836,7 +831,7 @@ The application should extract content to a temporary directory and activate it 
 
 If an import fails, the application must clean up temporary files and avoid leaving inconsistent metadata or partially active content.
 
-Replacement and removal operations must also be designed to preserve database and filesystem consistency when failures occur.
+Replacement and deactivation operations must also be designed to preserve database and filesystem consistency when failures occur.
 
 ---
 
@@ -857,7 +852,7 @@ TOGAFmate will follow these development principles:
 - Secure document access through the backend.
 - Server-side authorisation for all protected operations.
 - Coordinated backup and recovery for database metadata and filesystem content.
-- Safe replacement and removal of Knowledge Bases.
+- Safe replacement and soft deactivation of Knowledge Bases.
 - Automated testing.
 - Continuous code-quality analysis.
 - Containerised deployment using Docker.
@@ -889,7 +884,7 @@ The scope includes:
 14. Reader and administrator roles.
 15. Access permission management.
 16. Server-side authorisation.
-17. Safe replacement and removal of Knowledge Bases.
+17. Safe replacement and soft deactivation of Knowledge Bases.
 18. Docker containerisation.
 19. Persistent storage configuration for Knowledge Base files and PostgreSQL data.
 20. Backup and recovery procedures for persistent data.
@@ -928,7 +923,7 @@ Detailed design is still required for areas such as:
 - Authentication hardening and deployment configuration.
 - Database schema.
 - REST API contracts.
-- Knowledge Base replacement and deletion policies.
+- Knowledge Base replacement and soft-deactivation policies.
 - Persistent volume and host-directory configuration.
 - Backup schedules, retention, and recovery procedures.
 - Deployment configuration for the VM server.
@@ -964,7 +959,22 @@ Since this software is offered "Free without Warranty" or "Voetstoots" and the s
 
 ---
 
-## 16. License
+## 16. Database Migrations
+
+PostgreSQL schema migrations are implemented as Java startup components in `backend/src/main/java/com/togafmate/backend/config/`. The current migrations are not kept as standalone SQL files in a migrations directory.
+
+Each migration implements Spring Boot's `ApplicationRunner` and executes PostgreSQL-specific SQL after the JPA schema has been initialized. Migration components run before the configured administrator is created or reconciled. They skip non-PostgreSQL databases used by tests.
+
+Current migrations:
+
+- `PermissionConstraintMigration` updates the permission check constraint in `app_user_permissions` to accept the current permission values while retaining the legacy value for existing records.
+- `KnowledgeBaseActiveFlagMigration` adds `knowledge_base_is_active` to `knowledge_bases`, marks existing rows active, and sets the column default and `NOT NULL` constraint.
+
+Migrations must be safe to run on every backend startup. Use idempotent SQL so restarting the backend does not duplicate schema objects or overwrite existing values. Existing rows must be explicitly backfilled before a new required column is enforced. If a migration fails, the backend must log the failure and stop startup rather than continue with a partially updated schema.
+
+Hibernate's configured schema update remains responsible for ordinary entity schema changes. Startup migrations handle PostgreSQL changes that require explicit constraint updates or data backfills.
+
+## 17. License
 
 TOGAFmate is licensed under the **GNU General Public License version 3.0 (GPL-3.0)**.
 

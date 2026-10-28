@@ -37,7 +37,9 @@ class HealthControllerTest {
                         .value(org.hamcrest.Matchers.containsString("generates the UUID")))
                 .andExpect(jsonPath("$.paths['/api/knowledge-bases'].post.parameters").doesNotExist())
                 .andExpect(jsonPath("$.paths['/api/knowledge-bases/{id}'].put.summary")
-                        .value("Update Knowledge Base"));
+                        .value("Update Knowledge Base"))
+                .andExpect(jsonPath("$.components.schemas.KnowledgeBaseRequest.required",
+                        org.hamcrest.Matchers.hasItem("isActive")));
     }
 
     @Test
