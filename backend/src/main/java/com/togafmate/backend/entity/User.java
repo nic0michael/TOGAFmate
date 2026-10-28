@@ -56,6 +56,11 @@ public class User {
         return password;
     }
 
+    /** Replaces the stored encoded password. */
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
     /** Returns the user's current permissions. */
     public List<UserPermission> getPermissions() {
         return List.copyOf(permissions);

@@ -13,13 +13,15 @@ import com.togafmate.backend.repository.KnowledgeBaseRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ADMINISTRATOR_ACCESS")
+@WithMockUser(authorities = "ADMINISTRATOR_USER_ACCESS")
 class KnowledgeBaseControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -75,5 +77,38 @@ class KnowledgeBaseControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Architecture"))
                 .andExpect(jsonPath("$.folderNameVersion").value("Architecture_Guide_v1.0"));
+    }
+
+    @Test
+    void should_updateKnowledgeBaseMetadata_whenAdministratorRequestsUpdate() throws Exception {
+        KnowledgeBase knowledgeBase = knowledgeBaseRepository.save(new KnowledgeBase("Architecture", "1.0",
+                "Old description", "Free", "architecture-v1"));
+
+        mockMvc.perform(put("/api/knowledge-bases/" + knowledgeBase.getId())
+                        .contentType("application/json")
+                        .content("""
+                                {"title":"Updated Architecture","folderNameVersion":"architecture-v2",
+                                 "version":"2.0","description":"Updated description","contentType":"Open-source"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(knowledgeBase.getId().toString()))
+                .andExpect(jsonPath("$.title").value("Updated Architecture"))
+                .andExpect(jsonPath("$.folderNameVersion").value("architecture-v2"))
+                .andExpect(jsonPath("$.version").value("2.0"));
+    }
+
+    @Test
+    void should_forbidKnowledgeBaseUpdate_whenRequesterIsNotAdministrator() throws Exception {
+        KnowledgeBase knowledgeBase = knowledgeBaseRepository.save(new KnowledgeBase("Architecture", "1.0",
+                "Old description", "Free", "architecture-v1"));
+
+        mockMvc.perform(put("/api/knowledge-bases/" + knowledgeBase.getId())
+                        .with(user("reader").authorities(() -> "USER_ACCESS"))
+                        .contentType("application/json")
+                        .content("""
+                                {"title":"Updated Architecture","folderNameVersion":"architecture-v2",
+                                 "version":"2.0","contentType":"Open-source"}
+                                """))
+                .andExpect(status().isForbidden());
     }
 }

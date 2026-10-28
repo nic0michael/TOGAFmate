@@ -17,11 +17,9 @@ On macOS or Linux, use `./gradlew clean build` from the `backend` directory. The
 
 ### Run
 
-Make sure PostgreSQL is running with a database named `togafmate` (create it with `CREATE DATABASE togafmate;` if needed). From the repository root in Windows PowerShell, set a local bootstrap administrator and start the API:
+Make sure PostgreSQL is running with the database and credentials in `docker-compose/.env`. The local file sets `ADMIN_USER=admim`; keep `ADMIN_USER_PASSWORD` in that ignored file. From the repository root in Windows PowerShell, start the API:
 
 ```powershell
-$env:APP_BOOTSTRAP_ADMIN_USER_ID = "admin"
-$env:APP_BOOTSTRAP_ADMIN_PASSWORD = "<choose-a-local-password>"
 cd backend
 .\gradlew.bat bootRun
 ```
@@ -29,8 +27,6 @@ cd backend
 On macOS or Linux:
 
 ```bash
-export APP_BOOTSTRAP_ADMIN_USER_ID=admin
-export APP_BOOTSTRAP_ADMIN_PASSWORD='<choose-a-local-password>'
 cd backend
 ./gradlew bootRun
 ```
@@ -53,7 +49,7 @@ npm install
 npm start
 ```
 
-Open <http://localhost:4200>. The development server forwards `/api` requests to `http://localhost:8080`, so the frontend and backend can run in separate terminals without additional local CORS setup.
+Open <http://localhost:4200>. The development server forwards `/api` requests to `http://localhost:8999`, so the frontend and backend can run in separate terminals without additional local CORS setup.
 
 Sign in with the bootstrap administrator credentials configured for the backend. The current frontend supports:
 
@@ -66,14 +62,54 @@ New users are created through `POST /api/users/register` (see **Try the API in S
 
 For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
-The default PostgreSQL connection is `jdbc:postgresql://localhost:5432/togafmate` with user `postgres` and an empty password. Set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` before starting to use different connection values. The API starts at `http://localhost:8080`.
+The local backend runs at `http://localhost:8999`. Its database URL and credentials come from the ignored local backend configuration; set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` to override them. Docker services continue to use port `8080` internally.
 
 ### Try the API in Swagger
 
-Open [Swagger UI](http://localhost:8080/swagger-ui/index.html). Select **Authorize** and enter the bootstrap administrator ID and the local password you chose. Use these local test values:
+Open [Swagger UI](http://localhost:8999/swagger-ui/index.html). Log in once; the backend sets a short-lived HttpOnly JWT cookie, and the browser sends it automatically on protected Swagger requests. No manual token copying is needed when you run requests in the Swagger page.
 
-1. Try `GET /api/health`; it is public.
-2. Try `POST /api/knowledge-bases` with the administrator authorized and this JSON body:
+Before testing the sequence, ensure the reader account exists. Use `POST /api/users/register` with **Try it out**:
+
+```json
+{
+  "userID": "reader.demo",
+  "password": "DemoReaderPassword123!"
+}
+```
+
+New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
+
+1. **Log on:** `POST /api/users/login` is public and does not need Swagger authorization. Use the configured administrator credentials:
+
+   ```json
+   {
+     "userID": "admim",
+     "password": "ChangeThisPassword12@#"
+   }
+   ```
+
+   A successful response contains `userID`, `permissions`, `accessToken`, `tokenType`, and `expiresIn`; it never includes the password. The browser stores the HttpOnly cookie automatically, and it is valid for 15 minutes. For a curl command run outside Swagger, add `-H 'Authorization: Bearer YOUR_ACCESS_TOKEN'` using the response's `accessToken` value.
+
+2. **Grant reader access:** With the login token authorized, call `PUT /api/users/reader.demo/permissions` with:
+
+   ```json
+   {
+     "permission": "USER_ACCESS"
+   }
+   ```
+
+3. **Edit a user:** Call `PUT /api/users/reader.demo` to change the user ID and password. The password is optional; omit it to keep the current password. Permissions remain managed separately:
+
+   ```json
+   {
+     "userID": "reader.updated",
+     "password": "NewDemoReaderPassword123!"
+   }
+   ```
+
+4. **List users:** Call `GET /api/users` while authorized as the administrator. The response lists each user's ID and permissions, without passwords or password hashes.
+
+5. **Create Knowledge Base metadata:** Call `POST /api/knowledge-bases` while authorized as the administrator, using a unique `folderNameVersion`. The API generates the `id` as a GUID/UUID; do not include it in the request body:
 
    ```json
    {
@@ -85,14 +121,41 @@ Open [Swagger UI](http://localhost:8080/swagger-ui/index.html). Select **Authori
    }
    ```
 
-   This creates Knowledge Base metadata; ZIP upload and document storage are not implemented yet.
+   Required fields are `title`, `folderNameVersion`, `version`, and `contentType`. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. This endpoint registers metadata only; ZIP upload and document storage are not implemented yet. The response includes the generated ID, for example:
 
-3. Try `POST /api/users/register` with `{"userID":"reader.demo","password":"DemoReaderPassword123!"}`. New users receive `NO_ACCESS` by default.
-4. While authorized as the administrator, try `PUT /api/users/reader.demo/permissions` with `{"permission":"USER_ACCESS"}`.
-5. Try `POST /api/users/logon` with `{"userID":"reader.demo","password":"DemoReaderPassword123!"}`. The response includes permissions and never includes the password.
-6. To test reader access, select **Authorize** again with `reader.demo` and its sample password, then call `GET /api/knowledge-bases`.
+   ```json
+   {
+     "id": "550e8400-e29b-41d4-a716-446655440000",
+     "title": "TOGAF Demo Guide",
+     "version": "1.0",
+     "description": "Local Swagger test entry",
+     "contentType": "Free",
+     "folderNameVersion": "TOGAF_Demo_Guide_v1.0",
+     "author": null,
+     "emailAddress": null,
+     "tableOfContents": null
+   }
+   ```
 
-These sample values are for local testing only. Protected API calls use HTTP Basic authorization; use HTTPS when deploying outside local development.
+   The GUID above is an example of the expected format. Use the actual `id` returned by your create request in the next step.
+
+6. **Edit Knowledge Base metadata:** Use the `id` returned by the create response in `PUT /api/knowledge-bases/{id}`. The PUT body uses the same fields as create; for example:
+
+   ```json
+   {
+     "title": "TOGAF Demo Guide",
+     "folderNameVersion": "TOGAF_Demo_Guide_v1.1",
+     "version": "1.1",
+     "contentType": "Free",
+     "description": "Updated local Swagger test entry"
+   }
+   ```
+
+   The database UUID stays the same; metadata is validated and the folder identifier must remain unique.
+
+7. **List Knowledge Bases:** Call `GET /api/knowledge-bases` while authorized as the administrator or a user with `USER_ACCESS`.
+
+Protected API calls accept `Authorization: Bearer <accessToken>` and the browser also accepts the HttpOnly cookie set by login. Login tokens expire after 15 minutes; sign in again to get a new token. Sign-out clears the browser cookie, and the Angular app clears its in-memory token. `POST /api/users/logon` remains available as a compatibility alias for `/api/users/login` and also returns a JWT. Configure `JWT_SECRET` as a Base64-encoded random value containing at least 32 bytes; never commit it. Use HTTPS when deploying outside local development.
 
 ## Docker Images and Deployment
 
@@ -171,7 +234,7 @@ The repository contains the Angular frontend and Spring Boot backend. Stage 1 Do
 - Java 21 and Spring Boot
 - Gradle with Kotlin DSL
 - Spring Data JPA and PostgreSQL
-- Spring Security with BCrypt password hashes and HTTP Basic authorization
+- Spring Security with BCrypt password hashes and JWT Bearer authorization
 - Swagger UI for API exploration
 - H2 in-memory database for tests
 
@@ -179,23 +242,30 @@ The repository contains the Angular frontend and Spring Boot backend. Stage 1 Do
 
 The default PostgreSQL URL is `jdbc:postgresql://localhost:5432/togafmate`, with username `postgres` and an empty password. Override these defaults with `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`. JPA schema management defaults to `update`; set `JPA_DDL_AUTO` to change it.
 
-Set both `APP_BOOTSTRAP_ADMIN_USER_ID` and `APP_BOOTSTRAP_ADMIN_PASSWORD` to provision the first administrator at startup. The password is BCrypt-encoded before storage. Keep these values outside the repository.
+Set `ADMIN_USER` and `ADMIN_USER_PASSWORD` in `docker-compose/.env` for the configured administrator. On startup, the backend creates or reconciles this account, ensures `USER_ACCESS` and `ADMINISTRATOR_USER_ACCESS`, and resets its password to the configured value after BCrypt encoding. Keep these values outside the repository. If you change the configured administrator's ID or password through the API, update both environment values before restarting the backend.
+
+Set `JWT_SECRET` to a Base64-encoded cryptographically random value of at least 32 bytes for each backend runtime. Local `bootRun` reads it from the ignored `backend/application-local.properties`; keep the same value across backend instances. Changing the secret invalidates all tokens currently in use. The local development secret is generated locally and is not part of the repository.
 
 ## API and Swagger
 
-Open [Swagger UI](http://localhost:8080/swagger-ui/index.html) or the [OpenAPI document](http://localhost:8080/v3/api-docs) while the backend is running. In Swagger UI, use **Authorize** to enter HTTP Basic credentials for protected endpoints.
+Open [Swagger UI](http://localhost:8999/swagger-ui/index.html) or the [OpenAPI document](http://localhost:8999/v3/api-docs) while running the backend locally. Call `POST /api/users/login` once; Swagger's browser automatically sends the login cookie on subsequent protected requests. The response token can be used in curl or other API clients.
 
 | Method | Endpoint | Access | Purpose |
 |---|---|---|---|
 | `GET` | `/api/health` | Public | Backend process health |
 | `POST` | `/api/users/register` | Public | Register an account with `NO_ACCESS` |
-| `POST` | `/api/users/logon` | Public | Verify credentials and return permissions |
-| `GET` | `/api/knowledge-bases` | `USER_ACCESS` or `ADMINISTRATOR_ACCESS` | List Knowledge Base metadata |
-| `POST` | `/api/knowledge-bases` | `ADMINISTRATOR_ACCESS` | Validate and register Knowledge Base metadata |
-| `PUT` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_ACCESS` | Add a permission |
-| `DELETE` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_ACCESS` | Remove a permission |
+| `POST` | `/api/users/login` | Public | Verify credentials, return permissions and a JWT, and set a browser cookie |
+| `POST` | `/api/users/logon` | Public | Compatibility alias that also returns a JWT |
+| `POST` | `/api/users/logout` | Public | Clear the browser login cookie |
+| `GET` | `/api/users` | `ADMINISTRATOR_USER_ACCESS` | List users and permissions without password data |
+| `PUT` | `/api/users/{userID}` | `ADMINISTRATOR_USER_ACCESS` | Change a user's ID and optionally their password |
+| `GET` | `/api/knowledge-bases` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | List Knowledge Base metadata |
+| `POST` | `/api/knowledge-bases` | `ADMINISTRATOR_USER_ACCESS` | Validate and register Knowledge Base metadata |
+| `PUT` | `/api/knowledge-bases/{id}` | `ADMINISTRATOR_USER_ACCESS` | Validate and update Knowledge Base metadata |
+| `PUT` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_USER_ACCESS` | Add a permission |
+| `DELETE` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_USER_ACCESS` | Remove a permission |
 
-Permission request bodies use an enum value, for example `{"permission":"USER_ACCESS"}`. Available values are `USER_ACCESS`, `ADMINISTRATOR_ACCESS`, and `NO_ACCESS`. Protected requests use HTTP Basic credentials; use HTTPS when deploying outside local development.
+Permission request bodies use an enum value, for example `{"permission":"USER_ACCESS"}`. Available values are `USER_ACCESS`, `ADMINISTRATOR_USER_ACCESS`, and `NO_ACCESS`. Protected requests require a valid Bearer JWT; use HTTPS when deploying outside local development.
 
 Knowledge Base registration requires `title`, `folderNameVersion`, `version`, and `contentType`. Allowed content types are `Free`, `Open-source`, and `Copyrighted`. Optional metadata includes `author`, `emailAddress`, `tableOfContents`, and `description`.
 

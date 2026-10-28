@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /** Starts the TOGAFmate backend application. */
 @SpringBootApplication
 @OpenAPIDefinition(info = @Info(title = "TOGAFmate Backend API", version = "v1"))
-@SecurityScheme(name = "basicAuth", type = SecuritySchemeType.HTTP, scheme = "basic")
+@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 public class TogafmateBackendApplication {
     /** Runs the backend application. */
     public static void main(String[] args) {

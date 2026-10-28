@@ -39,7 +39,7 @@
             @if (loading()) { <span class="spinner"></span> Signing in… } @else { Sign in <span aria-hidden="true">→</span> }
           </button>
         </form>
-        <p class="login-security"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 2.5 3v4c0 3.2 2.3 6.1 5.5 7 3.2-.9 5.5-3.8 5.5-7V3L8 1Zm0 2 3.6 1.3V7c0 2.3-1.5 4.4-3.6 5.2C5.9 11.4 4.4 9.3 4.4 7V4.3L8 3Z"/></svg> Your credentials are used only for this session.</p>
+        <p class="login-security"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 2.5 3v4c0 3.2 2.3 6.1 5.5 7 3.2-.9 5.5-3.8 5.5-7V3L8 1Zm0 2 3.6 1.3V7c0 2.3-1.5 4.4-3.6 5.2C5.9 11.4 4.4 9.3 4.4 7V4.3L8 3Z"/></svg> Your access token stays in memory until you sign out or reload the page.</p>
       </div>
       <div class="login-bottom">TOGAFmate <span>•</span> Knowledge for architecture teams</div>
     </section>
@@ -134,7 +134,7 @@
               <section class="panel form-panel permission-panel"><div class="panel-heading"><div class="section-icon section-icon-blue">♙</div><div><h2>Manage user access</h2><p class="muted">Grant or revoke a permission for a user.</p></div></div>
                 <form (ngSubmit)="changePermission('grant')" class="admin-form">
                   <div class="field"><label for="target-user">User ID</label><input id="target-user" name="targetUserID" [(ngModel)]="targetUserID" required placeholder="Enter the user's ID" /></div>
-                  <div class="field"><label for="permission">Permission</label><select id="permission" name="permission" [(ngModel)]="permissionToChange"><option value="USER_ACCESS">Reader access</option><option value="ADMINISTRATOR_ACCESS">Administrator access</option></select></div>
+                  <div class="field"><label for="permission">Permission</label><select id="permission" name="permission" [(ngModel)]="permissionToChange"><option value="USER_ACCESS">Reader access</option><option value="ADMINISTRATOR_USER_ACCESS">Administrator access</option></select></div>
                   <div class="permission-actions"><button class="button button-primary" type="submit" [disabled]="loading()">Grant access</button><button class="button button-secondary" type="button" [disabled]="loading()" (click)="changePermission('revoke')">Revoke</button></div>
                   <p class="field-hint">User IDs are entered directly because the current API does not provide a user directory.</p>
                 </form>

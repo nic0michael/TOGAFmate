@@ -1,10 +1,12 @@
 package com.togafmate.backend.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.togafmate.backend.controller.KnowledgeBaseResponse;
 import com.togafmate.backend.entity.KnowledgeBase;
@@ -35,6 +37,17 @@ public class KnowledgeBaseService {
     public KnowledgeBaseResponse save(KnowledgeBase knowledgeBase) {
         KnowledgeBaseResponse response = toResponse(knowledgeBaseRepository.save(knowledgeBase));
         LOGGER.info("Registered Knowledge Base {} version {}", response.title(), response.version());
+        return response;
+    }
+
+    /** Updates metadata for an existing Knowledge Base. */
+    @Transactional
+    public KnowledgeBaseResponse update(UUID id, KnowledgeBase metadata) {
+        KnowledgeBase existing = knowledgeBaseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Knowledge Base was not found"));
+        existing.updateMetadata(metadata);
+        KnowledgeBaseResponse response = toResponse(knowledgeBaseRepository.save(existing));
+        LOGGER.info("Updated Knowledge Base {} version {}", response.title(), response.version());
         return response;
     }
 

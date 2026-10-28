@@ -30,7 +30,14 @@ class HealthControllerTest {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.info.title").value("TOGAFmate Backend API"))
-                .andExpect(jsonPath("$.components.securitySchemes.basicAuth.scheme").value("basic"));
+                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
+                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.bearerFormat").value("JWT"))
+                .andExpect(jsonPath("$.paths['/api/knowledge-bases'].post.summary").value("Create Knowledge Base"))
+                .andExpect(jsonPath("$.paths['/api/knowledge-bases'].post.description")
+                        .value(org.hamcrest.Matchers.containsString("generates the UUID")))
+                .andExpect(jsonPath("$.paths['/api/knowledge-bases'].post.parameters").doesNotExist())
+                .andExpect(jsonPath("$.paths['/api/knowledge-bases/{id}'].put.summary")
+                        .value("Update Knowledge Base"));
     }
 
     @Test

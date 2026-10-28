@@ -105,4 +105,16 @@ public class KnowledgeBase {
     public String getTableOfContents() {
         return tableOfContents;
     }
+
+    /** Replaces editable Knowledge Base metadata while preserving its database identifier. */
+    public void updateMetadata(KnowledgeBase metadata) {
+        title = metadata.title;
+        version = metadata.version;
+        description = metadata.description;
+        contentType = metadata.contentType;
+        folderNameVersion = metadata.folderNameVersion;
+        author = metadata.author;
+        emailAddress = metadata.emailAddress;
+        tableOfContents = metadata.tableOfContents;
+    }
 }

@@ -8,6 +8,12 @@ TOGAFmate uses Angular for the frontend, Spring Boot with Spring Data JPA and Sp
 
 TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
+## Repository Workflow
+
+- Do not create Git branches.
+- Do not push to Git.
+- Only the developer will run Git commands.
+
 ## 1. Objectives
 
 TOGAFmate aims to provide:
@@ -235,14 +241,15 @@ The configured storage root is controlled by the server and cannot be overridden
 
 ### 4.6 Frontend Authentication and Permissions
 
-- Users sign in with their user ID and password using HTTP Basic authentication. The backend's logon operation returns the user's permissions after validating the credentials.
-- The frontend uses HTTP Basic credentials for protected API requests and uses the returned permissions to present the pages and actions available to that user. The API does not use an application session or bearer-token flow in the initial implementation.
+- Users sign in with their user ID and password through `POST /api/users/login` or the compatible `POST /api/users/logon` endpoint. After validating credentials, the backend returns the user's ID and permissions plus a signed JWT access token.
+- Protected API requests accept `Authorization: Bearer <accessToken>`. For browser use, login also sets a 15-minute HttpOnly, SameSite=Strict JWT cookie, which Swagger UI sends automatically. Access tokens use HS256 and are signed with a Base64-encoded `JWT_SECRET` containing at least 32 random bytes. The signing secret must come from runtime configuration and must never be committed or logged.
+- The frontend uses the returned permissions to present available pages and actions, keeps the access token in memory, and clears the browser cookie on sign-out. There is no server-side session, refresh token, or token revocation list in this minimal implementation; permissions embedded in a token may remain effective until that token expires.
 - Users with `USER_ACCESS` may access reader pages and perform read-only operations on Knowledge Bases and their content.
-- Users with `ADMINISTRATOR_ACCESS` may access reader pages and administrative pages and perform the administrative operations allowed by the backend.
+- Users with `ADMINISTRATOR_USER_ACCESS` may access reader pages and administrative pages and perform the administrative operations allowed by the backend.
 - Users without the required permission must not be shown protected pages or actions. The backend must independently enforce every permission check, as specified in Section 10.3.
 - The frontend must provide a sign-out action that clears the in-memory authentication state and clear feedback for failed authentication or denied access.
 - Production deployments must use HTTPS for frontend and API traffic so credentials and protected content are encrypted in transit. Local development may use HTTP on localhost. Docker deployment must provide HTTPS at the application entry point, such as through a TLS-terminating reverse proxy; containerisation alone does not provide HTTPS.
-- The frontend must not persist passwords or HTTP Basic credentials in browser storage. Credentials should be held in memory only while the user is signed in.
+- The frontend must not persist passwords or access tokens in browser storage. Access tokens should be held in memory only while the user is signed in.
 
 ### 4.7 Reader and Administrator User Journeys
 
@@ -757,8 +764,9 @@ Readers will not be able to upload, replace, or remove Knowledge Bases or change
 
 Administrators will be able to:
 
+- Create user accounts and edit user account details.
 - Upload Knowledge Bases.
-- Manage Knowledge Base metadata.
+- Create and edit Knowledge Base metadata.
 - Replace or remove Knowledge Bases.
 - Manage access permissions.
 - Maintain the Knowledge Base collection.
@@ -773,6 +781,9 @@ The backend must enforce authorisation for every protected operation.
 This includes:
 
 - Listing restricted Knowledge Bases.
+- Creating and editing user accounts.
+- Listing users and changing user permissions.
+- Creating and editing Knowledge Base metadata.
 - Reading document content.
 - Accessing images and other resources.
 - Uploading ZIP files.
@@ -783,6 +794,20 @@ This includes:
 Hiding links or buttons in Angular is not sufficient security.
 
 The backend must independently verify the user's permissions before performing the requested operation.
+
+#### User and Knowledge Base API requirements
+
+- `POST /api/users/login` accepts a JSON body with `userID` and `password`, verifies the credentials, and returns `userID`, `permissions`, `accessToken`, `tokenType` (`Bearer`), and `expiresIn`. It also sets a 15-minute HttpOnly, SameSite=Strict cookie so Swagger UI can authenticate subsequent browser requests automatically. The password and password hash are never returned. The existing `POST /api/users/logon` path remains supported for compatibility and returns the same response and cookie. `POST /api/users/logout` clears that cookie.
+- The backend signs 15-minute HS256 JWT access tokens using a runtime-supplied Base64 `JWT_SECRET` of at least 32 random bytes. Protected API requests and Swagger use Bearer authentication. Invalid, expired, or missing tokens are rejected; permissions in the token authorize requests until expiry.
+- `GET /api/users` returns registered user IDs and permissions without password data. Only users with `ADMINISTRATOR_USER_ACCESS` may call this endpoint.
+- Administrators may create user accounts through `POST /api/users/register`. `PUT /api/users/{userID}` changes the user's ID and optionally their password; it requires `ADMINISTRATOR_USER_ACCESS`, a new `userID` field, and may include a `password` field. The update must preserve the user's permissions and reject a duplicate ID. Permission changes use the separate permission endpoint. User passwords must be stored as BCrypt hashes and must never be returned by API responses.
+- `PUT /api/users/{userID}/permissions` accepts a JSON body containing a permission enum (`USER_ACCESS`, `ADMINISTRATOR_USER_ACCESS`, or `NO_ACCESS`) and requires `ADMINISTRATOR_USER_ACCESS`. The target user must already exist.
+- `POST /api/users/register` creates an account with `NO_ACCESS`; administrators may then grant the required permission.
+- `POST /api/knowledge-bases` validates and registers Knowledge Base metadata and requires `ADMINISTRATOR_USER_ACCESS`.
+- `PUT /api/knowledge-bases/{id}` updates all Knowledge Base metadata using the same request fields and validation rules as creation. The UUID in the path identifies the record and remains unchanged; the folder identifier may be changed only when it is valid and unique. The endpoint requires `ADMINISTRATOR_USER_ACCESS`.
+- `GET /api/knowledge-bases` returns registered Knowledge Base metadata and requires `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS`.
+- Swagger documentation must expose these operations and show their request and response schemas and authorization requirements. Local API instructions must provide working example requests, including the prerequisite of registering a user before changing that user's permissions.
+- The configured administrator is identified at runtime using `ADMIN_USER` and `ADMIN_USER_PASSWORD`. At startup, the backend must create the account if absent or reconcile it to the configured ID, `USER_ACCESS` and `ADMINISTRATOR_USER_ACCESS`, and password. The password is stored as a BCrypt hash and is not logged or returned.
 
 ### 10.4 ZIP Upload Security
 

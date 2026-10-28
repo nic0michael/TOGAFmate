@@ -3,6 +3,7 @@ package com.togafmate.backend.validate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,11 @@ public class KnowledgeBaseValidator {
 
     /** Returns validation errors for the supplied Knowledge Base metadata. */
     public List<String> validate(KnowledgeBase knowledgeBase) {
+        return validate(knowledgeBase, null);
+    }
+
+    /** Returns validation errors while allowing the supplied Knowledge Base to retain its folder identifier. */
+    public List<String> validate(KnowledgeBase knowledgeBase, UUID excludedId) {
         List<String> errors = new ArrayList<>();
         if (knowledgeBase == null) {
             errors.add("Knowledge Base is required");
@@ -37,7 +43,7 @@ public class KnowledgeBaseValidator {
         String folderNameVersion = knowledgeBase.getFolderNameVersion();
         if (!isSafeFolderIdentifier(folderNameVersion)) {
             errors.add("folder_name_version is invalid");
-        } else if (knowledgeBaseRepository.existsByFolderNameVersion(folderNameVersion)) {
+        } else if (hasDuplicateFolderIdentifier(folderNameVersion, excludedId)) {
             errors.add("folder_name_version is already registered");
         }
         if (!isValidContentType(knowledgeBase.getContentType())) {
@@ -47,6 +53,12 @@ public class KnowledgeBaseValidator {
             errors.add("email_address is invalid");
         }
         return errors;
+    }
+
+    private boolean hasDuplicateFolderIdentifier(String folderIdentifier, UUID excludedId) {
+        return excludedId == null
+                ? knowledgeBaseRepository.existsByFolderNameVersion(folderIdentifier)
+                : knowledgeBaseRepository.existsByFolderNameVersionAndIdNot(folderIdentifier, excludedId);
     }
 
     private boolean isSafeFolderIdentifier(String folderIdentifier) {

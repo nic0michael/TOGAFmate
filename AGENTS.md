@@ -2,6 +2,8 @@
 
 ## 1. Purpose and General Rules
 
+All code generated must be human maintainable.
+
 Write readable, maintainable, reliable code. Prefer the simplest solution that meets the requirements (KISS). Avoid over-engineering, clever tricks, duplication, dead code, and speculative generality. Follow SOLID where appropriate and keep methods focused.
 
 ### Project Specification and Decision Rules

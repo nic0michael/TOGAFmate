@@ -12,6 +12,9 @@ public interface KnowledgeBaseRepository extends JpaRepository<KnowledgeBase, UU
     /** Checks whether a folder identifier is already registered. */
     boolean existsByFolderNameVersion(String folderNameVersion);
 
+    /** Checks whether another Knowledge Base uses the supplied folder identifier. */
+    boolean existsByFolderNameVersionAndIdNot(String folderNameVersion, UUID id);
+
     /** Finds Knowledge Bases whose title or description contains the supplied text. */
     List<KnowledgeBase> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
             String titleText, String descriptionText);

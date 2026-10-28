@@ -3,13 +3,19 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
-type Permission = 'USER_ACCESS' | 'ADMINISTRATOR_ACCESS' | 'NO_ACCESS';
+type Permission = 'USER_ACCESS' | 'ADMINISTRATOR_USER_ACCESS' | 'NO_ACCESS';
 type Theme = 'light' | 'gray' | 'black';
 type Page = 'library' | 'reader' | 'admin';
 
 interface UserResponse {
   userID: string;
   permissions: Permission[];
+}
+
+interface LoginResponse extends UserResponse {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: number;
 }
 
 interface KnowledgeBase {
@@ -58,9 +64,9 @@ export class App {
   protected readonly successMessage = signal('');
   protected readonly search = signal('');
   protected readonly hasReaderAccess = computed(() => this.user()?.permissions.some(
-    permission => permission === 'USER_ACCESS' || permission === 'ADMINISTRATOR_ACCESS',
+    permission => permission === 'USER_ACCESS' || permission === 'ADMINISTRATOR_USER_ACCESS',
   ) ?? false);
-  protected readonly isAdministrator = computed(() => this.user()?.permissions.includes('ADMINISTRATOR_ACCESS') ?? false);
+  protected readonly isAdministrator = computed(() => this.user()?.permissions.includes('ADMINISTRATOR_USER_ACCESS') ?? false);
   protected readonly filteredKnowledgeBases = computed(() => {
     const query = this.search().trim().toLocaleLowerCase();
     if (!query) return this.knowledgeBases();
@@ -89,9 +95,9 @@ export class App {
     }
     this.loading.set(true);
     try {
-      const result = await firstValueFrom(this.http.post<UserResponse>('/api/users/logon', { userID, password }));
+      const result = await firstValueFrom(this.http.post<LoginResponse>('/api/users/login', { userID, password }));
       if (!result) throw new Error('The server returned an empty login response.');
-      this.authorization = `Basic ${this.encodeCredentials(userID, password)}`;
+      this.authorization = `${result.tokenType} ${result.accessToken}`;
       this.user.set(result);
       this.password = '';
       if (this.hasReaderAccess()) {
@@ -108,7 +114,13 @@ export class App {
     }
   }
 
-  protected signOut(): void {
+  protected async signOut(): Promise<void> {
+    let logoutError = '';
+    try {
+      await firstValueFrom(this.http.post<void>('/api/users/logout', {}));
+    } catch (error) {
+      logoutError = this.describeError(error, 'The server could not clear the login cookie.');
+    }
     this.authorization = '';
     this.user.set(null);
     this.knowledgeBases.set([]);
@@ -117,6 +129,7 @@ export class App {
     this.password = '';
     this.page.set('library');
     this.clearMessages();
+    if (logoutError) this.errorMessage.set(logoutError);
   }
 
   protected async loadKnowledgeBases(): Promise<void> {
@@ -207,13 +220,6 @@ export class App {
 
   private authHeaders(): HttpHeaders {
     return new HttpHeaders({ Authorization: this.authorization });
-  }
-
-  private encodeCredentials(userID: string, password: string): string {
-    const bytes = new TextEncoder().encode(`${userID}:${password}`);
-    let binary = '';
-    bytes.forEach(byte => binary += String.fromCharCode(byte));
-    return btoa(binary);
   }
 
   private describeError(error: unknown, fallback: string): string {

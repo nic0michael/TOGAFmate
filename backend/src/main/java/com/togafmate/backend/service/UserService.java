@@ -14,7 +14,7 @@ import com.togafmate.backend.entity.User;
 import com.togafmate.backend.entity.UserPermission;
 import com.togafmate.backend.repository.UserRepository;
 
-/** Provides account registration, logon, and permission management operations. */
+/** Provides account registration, logon, listing, and permission management operations. */
 @Service
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
@@ -56,6 +56,41 @@ public class UserService {
         return response;
     }
 
+    /** Returns all users without exposing their stored password hashes. */
+    @Transactional(readOnly = true)
+    public List<UserResponse> findAll() {
+        List<UserResponse> users = userRepository.findAll().stream().map(this::toResponse).toList();
+        LOGGER.info("Listed user accounts: count={}", users.size());
+        return users;
+    }
+
+    /** Updates a user's identifier and optionally their password. */
+    @Transactional
+    public UserResponse updateUser(String userID, String updatedUserID, String password) {
+        if (updatedUserID == null || updatedUserID.isBlank()) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        User user = findUser(userID);
+        if (!updatedUserID.equals(userID) && userRepository.existsById(updatedUserID)) {
+            throw new UserAlreadyExistsException("User ID is already registered");
+        }
+
+        String encodedPassword = password == null || password.isBlank()
+                ? user.getPassword()
+                : passwordEncoder.encode(password);
+        User updatedUser = new User(updatedUserID, encodedPassword, user.getPermissions());
+        if (updatedUserID.equals(userID)) {
+            user.changePassword(encodedPassword);
+            updatedUser = user;
+        } else {
+            userRepository.delete(user);
+            userRepository.flush();
+        }
+        UserResponse response = toResponse(userRepository.save(updatedUser));
+        LOGGER.info("Updated user account");
+        return response;
+    }
+
     /** Adds a permission to an existing user. */
     @Transactional
     public UserResponse addPermission(String userID, UserPermission permission) {
@@ -81,7 +116,7 @@ public class UserService {
     private User findUser(String userID) {
         return userRepository.findById(userID)
                 .orElseThrow(() -> {
-                    LOGGER.warn("User permission update rejected because the account was not found");
+                    LOGGER.warn("User update rejected because the account was not found");
                     return new IllegalArgumentException("User was not found");
                 });
     }
