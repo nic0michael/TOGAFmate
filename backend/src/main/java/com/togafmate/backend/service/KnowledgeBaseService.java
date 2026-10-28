@@ -33,6 +33,15 @@ public class KnowledgeBaseService {
         return knowledgeBases;
     }
 
+    /** Returns active and inactive Knowledge Bases for administrator management. */
+    public List<KnowledgeBaseResponse> findAllForManagement() {
+        List<KnowledgeBaseResponse> knowledgeBases = knowledgeBaseRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+        LOGGER.info("Retrieved {} Knowledge Bases for management", knowledgeBases.size());
+        return knowledgeBases;
+    }
+
     /** Saves a validated Knowledge Base and returns its metadata. */
     public KnowledgeBaseResponse save(KnowledgeBase knowledgeBase) {
         KnowledgeBaseResponse response = toResponse(knowledgeBaseRepository.save(knowledgeBase));

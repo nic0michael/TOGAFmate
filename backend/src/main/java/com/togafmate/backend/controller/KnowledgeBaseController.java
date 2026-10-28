@@ -41,6 +41,13 @@ public class KnowledgeBaseController {
         return knowledgeBaseService.findAll();
     }
 
+    /** Returns active and inactive Knowledge Bases for administrator management. */
+    @GetMapping("/management")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<KnowledgeBaseResponse> getKnowledgeBasesForManagement() {
+        return knowledgeBaseService.findAllForManagement();
+    }
+
     /** Validates and registers Knowledge Base metadata. */
     @PostMapping
     @Operation(summary = "Create Knowledge Base", description = "Creates Knowledge Base metadata. The API generates the UUID; do not supply an ID.")

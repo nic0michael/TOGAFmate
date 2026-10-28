@@ -78,6 +78,8 @@ public class SecurityConfiguration {
                         .hasAuthority("ADMINISTRATOR_USER_ACCESS")
                         .requestMatchers(HttpMethod.GET, "/api/knowledge-bases")
                         .hasAnyAuthority("USER_ACCESS", "ADMINISTRATOR_USER_ACCESS")
+                        .requestMatchers(HttpMethod.GET, "/api/knowledge-bases/management")
+                        .hasAuthority("ADMINISTRATOR_USER_ACCESS")
                         .requestMatchers(HttpMethod.POST, "/api/knowledge-bases")
                         .hasAuthority("ADMINISTRATOR_USER_ACCESS")
                         .requestMatchers(HttpMethod.PUT, "/api/knowledge-bases/*")

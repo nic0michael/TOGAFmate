@@ -45,9 +45,9 @@ class BootstrapAdministratorTest {
     @Test
     void should_reconcileExistingAccountToConfiguredAdministrator_whenCredentialsChange() throws Exception {
         BootstrapAdministrator bootstrapAdministrator = new BootstrapAdministrator(userRepository, passwordEncoder,
-                "admim", "new-secret");
-        User existingUser = new User("admim", "old-encoded-password", List.of(UserPermission.NO_ACCESS));
-        when(userRepository.findById("admim")).thenReturn(Optional.of(existingUser));
+                "admin", "new-secret");
+        User existingUser = new User("admin", "old-encoded-password", List.of(UserPermission.NO_ACCESS));
+        when(userRepository.findById("admin")).thenReturn(Optional.of(existingUser));
         when(passwordEncoder.matches("new-secret", "old-encoded-password")).thenReturn(false);
         when(passwordEncoder.encode("new-secret")).thenReturn("new-encoded-password");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));

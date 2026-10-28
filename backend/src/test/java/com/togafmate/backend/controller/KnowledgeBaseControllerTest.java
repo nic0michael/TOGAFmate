@@ -68,6 +68,20 @@ class KnowledgeBaseControllerTest {
     }
 
     @Test
+    void should_listActiveAndInactiveKnowledgeBases_whenAdministratorRequestsManagementList() throws Exception {
+        knowledgeBaseRepository.save(new KnowledgeBase("Active Guide", "Active_Guide_v1", "1.0", null, null,
+                null, null, "Free", true));
+        knowledgeBaseRepository.save(new KnowledgeBase("Inactive Guide", "Inactive_Guide_v1", "1.0", null,
+                null, null, null, "Free", false));
+
+        mockMvc.perform(get("/api/knowledge-bases/management"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].title").value(org.hamcrest.Matchers.containsInAnyOrder(
+                        "Active Guide", "Inactive Guide")))
+                .andExpect(jsonPath("$[?(@.title == 'Inactive Guide')].isActive").value(false));
+    }
+
+    @Test
     void should_rejectInvalidKnowledgeBase_beforeCallingService_whenMetadataIsInvalid() throws Exception {
         mockMvc.perform(post("/api/knowledge-bases")
                         .contentType("application/json")

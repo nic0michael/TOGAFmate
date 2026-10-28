@@ -17,7 +17,7 @@ On macOS or Linux, use `./gradlew clean build` from the `backend` directory. The
 
 ### 1.2 Run
 
-Make sure PostgreSQL is running with the database and credentials in `docker-compose/.env`. The local file sets `ADMIN_USER=admim`; keep `ADMIN_USER_PASSWORD` in that ignored file. From the repository root in Windows PowerShell, start the API:
+Make sure PostgreSQL is running with the database and credentials in `docker-compose/.env`. The local file sets `ADMIN_USER=admin`; keep `ADMIN_USER_PASSWORD` in that ignored file. From the repository root in Windows PowerShell, start the API:
 
 ```powershell
 cd backend
@@ -79,12 +79,12 @@ Before testing the sequence, ensure the reader account exists. Use `POST /api/us
 
 New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
 
-1. **Log on:** `POST /api/users/login` is public and does not need Swagger authorization. Use the configured administrator credentials:
+1. **Log on:** `POST /api/users/login` is public and does not need Swagger authorization. The configured admin user ID is `admin`. Enter the current `ADMIN_USER_PASSWORD` from the ignored `docker-compose/.env` file as the password; the password is intentionally not included in this README:
 
    ```json
    {
-     "userID": "admim",
-     "password": "ChangeThisPassword12@#"
+     "userID": "admin",
+     "password": "YOUR_ADMIN_USER_PASSWORD"
    }
    ```
 
@@ -93,7 +93,7 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
    ```bash
    curl -X POST 'http://localhost:8999/api/users/login' \
      -H 'Content-Type: application/json' \
-     -d '{"userID":"admim","password":"YOUR_ADMIN_PASSWORD"}'
+     -d '{"userID":"admin","password":"YOUR_ADMIN_USER_PASSWORD"}'
    ```
 
    Add that token as a Bearer header on protected requests. For example, create a Knowledge Base with:
