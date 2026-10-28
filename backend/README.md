@@ -4,7 +4,7 @@ Spring Boot REST API using Java 21, Spring Data JPA, Spring Security, PostgreSQL
 
 ## Run
 
-Configure a PostgreSQL database, then run `gradlew.bat bootRun` on Windows or `./gradlew bootRun` on macOS/Linux. Defaults target `jdbc:postgresql://localhost:5432/togafmate` with username `postgres` and an empty password. Override these with `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`. The default JPA schema mode is `update`; set `JPA_DDL_AUTO` to change it.
+For local development, run `gradlew.bat bootRun` on Windows or `./gradlew bootRun` on macOS/Linux. The Gradle `bootRun` task activates the local Spring profile and reads its database connection from the ignored `backend/application-local.properties` file. Update that local-only file with your PostgreSQL credentials as needed. Do not commit it. The file stays outside packaged resources, and Docker Compose deployment continues to supply database credentials through its runtime environment. The default JPA schema mode is `update`; set `JPA_DDL_AUTO` to change it.
 
 ## Test
 

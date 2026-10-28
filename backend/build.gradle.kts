@@ -18,6 +18,11 @@ repositories {
     mavenCentral()
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    systemProperty("spring.profiles.active", "local")
+    systemProperty("spring.config.additional-location", "optional:file:${projectDir}/application-local.properties")
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
