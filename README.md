@@ -180,6 +180,42 @@ New accounts start with `NO_ACCESS`. In Swagger, run these requests in order:
 
 7. **List Knowledge Bases:** Call `GET /api/knowledge-bases` while authorized as the administrator or a user with `USER_ACCESS`.
 
+8. **Create a user:** While authorized as the administrator, call `POST /api/users/register` with a new user ID and password:
+
+   ```json
+   {
+     "userID": "reader.second",
+     "password": "DemoReaderPassword123!"
+   }
+   ```
+
+   New user accounts start with `NO_ACCESS`.
+
+9. **Assign the user the reader role:** While still authorized as the administrator, call `PUT /api/users/reader.second/permissions` with:
+
+   ```json
+   {
+     "permission": "USER_ACCESS"
+   }
+   ```
+
+10. **Assign the user the administrator role:** Call `PUT /api/users/reader.second/permissions` with:
+
+   ```json
+   {
+     "permission": "ADMINISTRATOR_USER_ACCESS"
+   }
+   ```
+
+11. **Edit the user:** Call `PUT /api/users/reader.second` to change the user's ID and password. The permission assignments are preserved:
+
+   ```json
+   {
+     "userID": "administrator.second",
+     "password": "NewDemoAdministratorPassword123!"
+   }
+   ```
+
 Protected API calls accept `Authorization: Bearer <accessToken>` and the browser also accepts the HttpOnly cookie set by login. Login tokens expire after 15 minutes; sign in again to get a new token. Sign-out clears the browser cookie, and the Angular app clears its in-memory token. `POST /api/users/logon` remains available as a compatibility alias for `/api/users/login` and also returns a JWT. Configure `JWT_SECRET` as a Base64-encoded random value containing at least 32 bytes; never commit it. Use HTTPS when deploying outside local development.
 
 ## 2. Docker Images and Deployment
