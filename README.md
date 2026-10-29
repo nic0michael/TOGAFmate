@@ -58,7 +58,7 @@ Sign in with the bootstrap administrator credentials configured for the backend.
 3. Registering Knowledge Base metadata and granting or revoking a user's reader or administrator permission from the Admin area.
 4. Choosing the Light, Gray, or Black theme.
 
-New users are created through `POST /api/users/register` (see **Try the API in Swagger**) and start with `NO_ACCESS`; an administrator can then grant them reader access in the frontend. The backend currently has no ZIP upload or document retrieval endpoints. The frontend therefore displays Knowledge Base details but cannot yet import ZIP files or render Markdown documents. The API supports metadata updates and soft deactivation; it does not physically delete Knowledge Base records.
+New users are created through `POST /api/users/register` (see **Try the API in Swagger**) and start with `NO_ACCESS`; an administrator can then grant them reader access in the frontend. Administrators can upload an individual `.md` file to an active Knowledge Base; its text is stored in PostgreSQL and the filename (without extension) becomes the page title. Readers can select a Knowledge Base, choose an uploaded page, and view its Markdown source. Uploads are limited to 1 MB, and duplicate page titles within a Knowledge Base are rejected. ZIP import and reading ZIP-imported documents remain future work. The API supports metadata updates and soft deactivation; it does not physically delete Knowledge Base records.
 
 For local development, HTTP on localhost is supported. Production deployments must serve both the frontend and API over HTTPS, with the production web server or reverse proxy routing `/api` to the backend. Docker deployment is planned; Docker by itself does not configure HTTPS.
 
@@ -279,16 +279,16 @@ Production deployments still need an HTTPS entry point and appropriate persisten
 
 ## 3. Architecture
 
-The target design separates the web client, REST API, metadata database, and file storage:
+The target design separates the web client, REST API, PostgreSQL, and filesystem storage. PostgreSQL will hold metadata and individually uploaded Markdown page content; ZIP-imported Knowledge Base files and supporting resources will use persistent filesystem storage:
 
 ```mermaid
 flowchart LR
     Browser[Angular frontend] -->|REST API| Backend[Spring Boot backend]
-    Backend -->|JPA| Database[(PostgreSQL metadata)]
-    Backend -->|Document storage| Files[Persistent filesystem]
+    Backend -->|JPA metadata and uploaded page content| Database[(PostgreSQL)]
+    Backend -->|ZIP-imported documents and resources| Files[Persistent filesystem]
 ```
 
-The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images, and the Stage 2 Compose files are under `docker-compose/`. HTTPS deployment, persistent Knowledge Base file storage, ZIP import, and document retrieval remain future work described in `SPECS.md`.
+The repository contains the Angular frontend and Spring Boot backend. Stage 1 Dockerfiles are available for publishing separate application images, and the Stage 2 Compose files are under `docker-compose/`. HTTPS deployment, persistent Knowledge Base file storage, ZIP import, and retrieval of ZIP-imported documents remain future work described in `SPECS.md`.
 
 ## 4. Technology
 
@@ -321,6 +321,9 @@ Open [Swagger UI](http://localhost:8999/swagger-ui/index.html) or the [OpenAPI d
 | `GET` | `/api/users` | `ADMINISTRATOR_USER_ACCESS` | List users and permissions without password data |
 | `PUT` | `/api/users/{userID}` | `ADMINISTRATOR_USER_ACCESS` | Change a user's ID and optionally their password |
 | `GET` | `/api/knowledge-bases` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | List active Knowledge Base metadata |
+| `GET` | `/api/knowledge-bases/{id}/pages` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | List Markdown pages in an active Knowledge Base |
+| `GET` | `/api/knowledge-bases/{id}/pages/{pageId}` | `USER_ACCESS` or `ADMINISTRATOR_USER_ACCESS` | Retrieve Markdown source for a page |
+| `POST` | `/api/knowledge-bases/{id}/pages` | `ADMINISTRATOR_USER_ACCESS` | Upload a Markdown page as multipart field `file` (maximum 1 MB) |
 | `POST` | `/api/knowledge-bases` | `ADMINISTRATOR_USER_ACCESS` | Validate and register Knowledge Base metadata |
 | `PUT` | `/api/knowledge-bases/{id}` | `ADMINISTRATOR_USER_ACCESS` | Validate and update Knowledge Base metadata |
 | `PUT` | `/api/users/{userID}/permissions` | `ADMINISTRATOR_USER_ACCESS` | Add a permission |

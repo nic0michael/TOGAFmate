@@ -4,7 +4,7 @@
 
 The application supports multiple Knowledge Bases, each containing Markdown documents and associated resources such as images. Knowledge Bases can contain learning material, technical documentation, reference information, and other authorised content.
 
-TOGAFmate uses Angular for the frontend, Spring Boot with Spring Data JPA and Spring Security for the Java backend, PostgreSQL for metadata and access control, and persistent filesystem storage for document content. User passwords are stored as BCrypt hashes. The application uses a Docker-based deployment architecture on a VM server.
+TOGAFmate uses Angular for the frontend, Spring Boot with Spring Data JPA and Spring Security for the Java backend, PostgreSQL for metadata, access control, and individually uploaded Markdown page content, and persistent filesystem storage for ZIP-imported document content and supporting resources. User passwords are stored as BCrypt hashes. The application uses a Docker-based deployment architecture on a VM server.
 
 TOGAFmate is released under the **GNU General Public License v3.0 (GPL-3.0)**.
 
@@ -62,7 +62,7 @@ Supported content may include:
 - Images used by Markdown documents.
 - Other supporting resources approved by the application.
 
-The initial implementation will focus on Markdown documents and associated images.
+The application will support administrator-uploaded Markdown pages stored as text in PostgreSQL. Existing ZIP-imported Knowledge Base files and their supporting resources remain on persistent filesystem storage unless separately migrated.
 
 The application will display Markdown content in a readable format through the Angular frontend.
 
@@ -75,11 +75,13 @@ The application will provide a Table of Contents for each Knowledge Base.
 Users will be able to:
 
 - Select a Knowledge Base.
-- View its Table of Contents.
-- Select a document.
+- View the list of pages available in that Knowledge Base.
+- Select a page from the list.
 - Read the document.
 - Navigate to other documents within the same Knowledge Base.
 - View associated images and other authorised resources.
+
+The reader interface will provide a Knowledge Base dropdown followed by a page list for the selected Knowledge Base. Selecting a page loads and displays its Markdown content. The backend must return only pages belonging to the selected, active Knowledge Base and enforce reader access.
 
 The application will not require users to download an entire Knowledge Base to read an individual document.
 
@@ -97,6 +99,8 @@ The backend will:
 6. Make the Knowledge Base available to authorised users.
 
 The files will be extracted once during import. Subsequent document requests will read the extracted files rather than repeatedly extracting the ZIP archive.
+
+Administrators will also be able to upload an individual `.md` page from the frontend. The form will require selecting an active Knowledge Base and choosing a Markdown file. The backend will validate the upload and store its content in PostgreSQL, associated with the selected Knowledge Base. This individual-page upload is separate from ZIP import and does not change the filesystem storage of existing ZIP-imported resources.
 
 ### 2.5 Knowledge Base Administration
 
@@ -214,7 +218,7 @@ The diagram shows the logical deployment. In the preferred configuration, named 
 5. The backend stores the associated metadata and permissions in PostgreSQL.
 6. Users access authorised Knowledge Base content through the REST API.
 
-Knowledge Base documents are stored on the persistent filesystem, not inside the PostgreSQL database. PostgreSQL stores the associated metadata.
+ZIP-imported Knowledge Base documents and supporting resources are stored on the persistent filesystem. Individually uploaded Markdown pages are stored in PostgreSQL with their associated Knowledge Base identifier and metadata.
 
 The configured storage root is controlled by the server and cannot be overridden by the uploaded archive.
 
@@ -463,7 +467,7 @@ If an import fails, temporary files must be cleaned up and the existing active K
 - **Persistent Knowledge Base storage:** Extracted Knowledge Base files are stored in a named Docker volume or a mounted host directory on the VM server.
 - **Preferred option:** Use a named Docker volume when direct host access to files is not required.
 - **Alternative option:** Use a mounted host directory when administrators need direct access to the stored files.
-- **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, permissions, and optional audit records.
+- **Database storage:** PostgreSQL stores Knowledge Base metadata, document metadata, individually uploaded Markdown page content, permissions, and optional audit records.
 - **Separate storage:** PostgreSQL data and Knowledge Base files must use separate persistent storage locations.
 - **Data persistence:** Knowledge Base files and database data must survive container restarts, upgrades, replacement, and recreation.
 - **Storage configuration:** The deployment administrator configures the storage locations. Uploaded archives cannot override these locations.
@@ -691,11 +695,12 @@ The backend must not permit a request to access files outside the authorised Kno
 
 The filesystem stores the actual content.
 
-PostgreSQL stores metadata and application information.
+PostgreSQL stores metadata, application information, and the content of Markdown pages uploaded individually through the administrator page form. ZIP-imported Knowledge Base files remain on the filesystem.
 
 | Information | Storage location |
 |---|---|
 | Knowledge Base Markdown files | Persistent filesystem |
+| Individually uploaded Markdown page content | PostgreSQL |
 | Images and supporting resources | Persistent filesystem |
 | Knowledge Base README | Persistent filesystem |
 | Table of Contents resource | Persistent filesystem |
@@ -704,7 +709,7 @@ PostgreSQL stores metadata and application information.
 | Access permissions | PostgreSQL |
 | Administrative audit information | PostgreSQL, where required |
 
-The application will not maintain duplicate copies of the Markdown documents in PostgreSQL.
+The application will not maintain duplicate copies of ZIP-imported filesystem documents in PostgreSQL. Individually uploaded Markdown pages are stored in PostgreSQL as their authoritative content.
 
 The Knowledge Base filesystem and PostgreSQL data will use separate persistent storage locations.
 
@@ -749,7 +754,9 @@ TOGAFmate will distinguish between readers and administrators.
 Readers will be able to:
 
 - Browse Knowledge Bases they are authorised to access.
-- View their Tables of Contents.
+- Choose a Knowledge Base from a dropdown and view its available page list.
+- Select and read a page's Markdown content.
+- View their Tables of Contents for ZIP-imported content.
 - Read authorised Markdown documents.
 - Access authorised supporting resources.
 
@@ -761,6 +768,7 @@ Administrators will be able to:
 
 - Create user accounts and edit user account details.
 - Upload Knowledge Bases.
+- Upload an individual Markdown page by selecting a Knowledge Base and choosing a `.md` file. The backend stores the page content in PostgreSQL and associates it with that Knowledge Base.
 - Create and edit Knowledge Base metadata.
 - Replace, deactivate, or reactivate Knowledge Bases.
 - Manage access permissions.
@@ -846,7 +854,8 @@ TOGAFmate will follow these development principles:
 - Separation of frontend and backend.
 - Separation of metadata from document content.
 - PostgreSQL for structured metadata and permissions.
-- Persistent filesystem storage for Markdown and supporting resources.
+- PostgreSQL storage for individually uploaded Markdown page content.
+- Persistent filesystem storage for ZIP-imported Markdown and supporting resources.
 - Separate persistent storage for Knowledge Base files and PostgreSQL data.
 - Consistent structure for all Knowledge Bases.
 - ZIP as the initial import format.
