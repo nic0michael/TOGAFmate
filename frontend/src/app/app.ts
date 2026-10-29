@@ -43,6 +43,12 @@ interface KnowledgeBaseForm {
   isActive: boolean;
 }
 
+interface KnowledgeBasePage {
+  id: string;
+  title: string;
+  createdAt: string;
+}
+
 const EMPTY_KNOWLEDGE_BASE: KnowledgeBaseForm = {
   title: '', folderNameVersion: '', version: '', contentType: 'Free',
   description: '', author: '', emailAddress: '', tableOfContents: '', isActive: true,
@@ -61,6 +67,9 @@ export class App {
   protected readonly knowledgeBases = signal<KnowledgeBase[]>([]);
   protected readonly managedKnowledgeBases = signal<KnowledgeBase[]>([]);
   protected readonly selectedKnowledgeBase = signal<KnowledgeBase | null>(null);
+  protected readonly knowledgeBasePages = signal<KnowledgeBasePage[]>([]);
+  protected readonly selectedPage = signal<KnowledgeBasePage | null>(null);
+  protected readonly markdownContent = signal('');
   protected readonly page = signal<Page>('library');
   protected readonly theme = signal<Theme>(this.readTheme());
   protected readonly loading = signal(false);
@@ -93,6 +102,9 @@ export class App {
   protected updatedUserPasswordConfirm = '';
   protected knowledgeBaseForm: KnowledgeBaseForm = { ...EMPTY_KNOWLEDGE_BASE };
   protected selectedKnowledgeBaseID = '';
+  protected selectedUploadKnowledgeBaseID = '';
+  protected selectedReaderKnowledgeBaseID = '';
+  protected markdownFile: File | null = null;
   protected knowledgeBaseEditForm: KnowledgeBaseForm = { ...EMPTY_KNOWLEDGE_BASE };
   protected targetUserID = '';
   protected permissionToChange: Permission = 'USER_ACCESS';
@@ -194,8 +206,76 @@ export class App {
 
   protected openKnowledgeBase(item: KnowledgeBase): void {
     this.selectedKnowledgeBase.set(item);
+    this.selectedReaderKnowledgeBaseID = item.id;
+    void this.loadPages(item.id);
     this.page.set('reader');
     this.clearMessages();
+  }
+
+  protected async changeReaderKnowledgeBase(id: string): Promise<void> {
+    this.selectedReaderKnowledgeBaseID = id;
+    this.selectedKnowledgeBase.set(this.knowledgeBases().find(item => item.id === id) ?? null);
+    await this.loadPages(id);
+  }
+
+  protected async loadPages(knowledgeBaseID: string): Promise<void> {
+    if (!knowledgeBaseID) return;
+    this.knowledgeBasePages.set([]);
+    this.selectedPage.set(null);
+    this.markdownContent.set('');
+    try {
+      const pages = await firstValueFrom(this.http.get<KnowledgeBasePage[]>(
+        `/api/knowledge-bases/${encodeURIComponent(knowledgeBaseID)}/pages`, { headers: this.authHeaders() },
+      ));
+      this.knowledgeBasePages.set(pages ?? []);
+    } catch (error) {
+      this.errorMessage.set(this.describeError(error, 'Could not load pages for this Knowledge Base.'));
+    }
+  }
+
+  protected async openPage(pageID: string): Promise<void> {
+    const page = this.knowledgeBasePages().find(item => item.id === pageID);
+    this.selectedPage.set(page ?? null);
+    this.markdownContent.set('');
+    if (!page) return;
+    try {
+      const content = await firstValueFrom(this.http.get(
+        `/api/knowledge-bases/${encodeURIComponent(this.selectedReaderKnowledgeBaseID)}/pages/${encodeURIComponent(page.id)}`,
+        { headers: this.authHeaders(), responseType: 'text' },
+      ));
+      this.markdownContent.set(content);
+    } catch (error) {
+      this.errorMessage.set(this.describeError(error, 'Could not load the selected page.'));
+    }
+  }
+
+  protected selectMarkdownFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.markdownFile = input.files?.[0] ?? null;
+  }
+
+  protected async uploadMarkdownPage(): Promise<void> {
+    if (!this.isAdministrator() || !this.selectedUploadKnowledgeBaseID || !this.markdownFile) {
+      this.errorMessage.set('Select a Knowledge Base and a Markdown file.');
+      return;
+    }
+    this.clearMessages();
+    this.loading.set(true);
+    const form = new FormData();
+    form.append('file', this.markdownFile);
+    try {
+      const saved = await firstValueFrom(this.http.post<KnowledgeBasePage>(
+        `/api/knowledge-bases/${encodeURIComponent(this.selectedUploadKnowledgeBaseID)}/pages`, form,
+        { headers: this.authHeaders() },
+      ));
+      this.successMessage.set(`${saved.title} was uploaded successfully.`);
+      this.markdownFile = null;
+      this.selectedUploadKnowledgeBaseID = '';
+    } catch (error) {
+      this.errorMessage.set(this.describeError(error, 'Could not upload the Markdown page.'));
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   protected async registerKnowledgeBase(): Promise<void> {

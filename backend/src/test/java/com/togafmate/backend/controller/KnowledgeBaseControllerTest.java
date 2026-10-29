@@ -10,14 +10,18 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.togafmate.backend.entity.KnowledgeBase;
 import com.togafmate.backend.repository.KnowledgeBaseRepository;
+import com.togafmate.backend.repository.KnowledgeBasePageRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import org.springframework.mock.web.MockMultipartFile;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,9 +32,58 @@ class KnowledgeBaseControllerTest {
 
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
+    @Autowired
+    private KnowledgeBasePageRepository pageRepository;
+
+    @Test
+    void should_uploadAndRetrieveMarkdownPage_whenAdministratorSelectsActiveKnowledgeBase() throws Exception {
+        KnowledgeBase knowledgeBase = knowledgeBaseRepository.save(new KnowledgeBase("Architecture", "1.0",
+                "Reference material", "Free", "architecture-v1"));
+        MockMultipartFile file = new MockMultipartFile("file", "overview.md", "text/markdown",
+                "# Overview\nArchitecture content".getBytes());
+
+        mockMvc.perform(multipart("/api/knowledge-bases/{id}/pages", knowledgeBase.getId()).file(file))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("overview"));
+        mockMvc.perform(get("/api/knowledge-bases/{id}/pages", knowledgeBase.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("overview"));
+    }
+
+    @Test
+    void should_returnMarkdownPageContent_whenReaderRequestsPage() throws Exception {
+        KnowledgeBase knowledgeBase = knowledgeBaseRepository.save(new KnowledgeBase("Architecture", "1.0",
+                "Reference material", "Free", "architecture-v1"));
+        MockMultipartFile file = new MockMultipartFile("file", "overview.md", "text/markdown",
+                "# Overview".getBytes());
+        String response = mockMvc.perform(multipart("/api/knowledge-bases/{id}/pages", knowledgeBase.getId()).file(file))
+                .andReturn().getResponse().getContentAsString();
+        String pageId = com.jayway.jsonpath.JsonPath.read(response, "$.id");
+
+        mockMvc.perform(get("/api/knowledge-bases/{id}/pages", knowledgeBase.getId())
+                        .with(user("reader").authorities(() -> "USER_ACCESS")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("overview"));
+        mockMvc.perform(get("/api/knowledge-bases/{id}/pages/{pageId}", knowledgeBase.getId(), pageId)
+                        .with(user("reader").authorities(() -> "USER_ACCESS")))
+                .andExpect(status().isOk())
+                .andExpect(content().string("# Overview"));
+    }
+
+    @Test
+    void should_forbidPageUpload_whenRequesterIsReader() throws Exception {
+        KnowledgeBase knowledgeBase = knowledgeBaseRepository.save(new KnowledgeBase("Architecture", "1.0",
+                "Reference material", "Free", "architecture-v1"));
+        MockMultipartFile file = new MockMultipartFile("file", "overview.md", "text/markdown",
+                "# Overview".getBytes());
+        mockMvc.perform(multipart("/api/knowledge-bases/{id}/pages", knowledgeBase.getId()).file(file)
+                        .with(user("reader").authorities(() -> "USER_ACCESS")))
+                .andExpect(status().isForbidden());
+    }
 
     @BeforeEach
     void clearKnowledgeBases() {
+        pageRepository.deleteAll();
         knowledgeBaseRepository.deleteAll();
     }
 

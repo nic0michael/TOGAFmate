@@ -12,8 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.MediaType;
 
 import com.togafmate.backend.service.KnowledgeBaseService;
+import com.togafmate.backend.service.KnowledgeBasePageService;
 import com.togafmate.backend.entity.KnowledgeBase;
 import com.togafmate.backend.validate.KnowledgeBaseValidator;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,12 +31,52 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 public class KnowledgeBaseController {
     private final KnowledgeBaseService knowledgeBaseService;
     private final KnowledgeBaseValidator knowledgeBaseValidator;
+    private final KnowledgeBasePageService pageService;
 
     /** Creates the controller with its application service. */
     public KnowledgeBaseController(KnowledgeBaseService knowledgeBaseService,
-            KnowledgeBaseValidator knowledgeBaseValidator) {
+            KnowledgeBaseValidator knowledgeBaseValidator,
+            KnowledgeBasePageService pageService) {
         this.knowledgeBaseService = knowledgeBaseService;
         this.knowledgeBaseValidator = knowledgeBaseValidator;
+        this.pageService = pageService;
+    }
+
+    /** Stores an administrator-uploaded Markdown page in PostgreSQL. */
+    @PostMapping(value = "/{id}/pages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<KnowledgeBasePageResponse> uploadPage(@PathVariable UUID id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(pageService.upload(id, file.getOriginalFilename(), file.getBytes()));
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
+        } catch (java.io.IOException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not read uploaded Markdown file", exception);
+        }
+    }
+
+    /** Lists Markdown pages belonging to an active Knowledge Base. */
+    @GetMapping("/{id}/pages")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<KnowledgeBasePageResponse> getPages(@PathVariable UUID id) {
+        try {
+            return pageService.list(id);
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+        }
+    }
+
+    /** Returns stored Markdown source for a page in an active Knowledge Base. */
+    @GetMapping(value = "/{id}/pages/{pageId}", produces = MediaType.TEXT_PLAIN_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
+    public String getPageContent(@PathVariable UUID id, @PathVariable UUID pageId) {
+        try {
+            return pageService.content(id, pageId);
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+        }
     }
 
     /** Returns all registered Knowledge Bases. */
